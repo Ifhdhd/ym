@@ -57,16 +57,29 @@
         .sidebar-overlay.active { display: block; opacity: 1; }
         .sidebar { width: var(--sidebar-width); background: var(--white); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 1000; }
         .sidebar-header { padding: 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); }
-        .sidebar-logo { height: 28px; }
-        .sidebar-brand { font-weight: 700; color: var(--primary-dark); font-size: 1rem; }
+        .sidebar-logo { height: 32px; }
+        .sidebar-brand { font-weight: 700; color: var(--primary-dark); font-size: 1.1rem; line-height: 1; }
         .nav-links { list-style: none; padding: 10px 0; flex: 1; overflow-y: auto; }
         .nav-item { margin-bottom: 2px; }
-        .nav-link { display: flex; align-items: center; padding: 10px 20px; color: var(--text-grey); text-decoration: none; transition: all 0.2s; border-left: 4px solid transparent; font-size: 0.9rem; }
+        .nav-link { display: flex; align-items: center; padding: 12px 20px; color: var(--text-grey); text-decoration: none; transition: all 0.2s; border-left: 4px solid transparent; font-size: 0.9rem; }
         .nav-link i { width: 20px; margin-right: 10px; }
         .nav-link:hover, .nav-link.active { background-color: #f0fdf4; color: var(--primary-dark); border-left-color: #00b09b; }
         body.dark-mode .nav-link:hover, body.dark-mode .nav-link.active { background-color: #384e3b; color: #fff; }
-        .user-profile { padding: 15px; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; }
-        .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--primary-gradient); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
+        
+        /* SIDEBAR FOOTER FIX (ADMIN OFFSIDE) */
+        .user-profile { 
+            height: 60px; /* Fixed height for alignment */
+            padding: 15px; 
+            border-top: 1px solid var(--border-color); 
+            display: flex; 
+            align-items: center; /* Vertical Center */
+            gap: 10px; 
+            justify-content: space-between;
+        }
+        .user-info { flex: 1; margin-left: 5px; text-align: left; line-height: 1.2rem; }
+        .user-info strong { font-size: 0.95rem; font-weight: 600; color: var(--text-dark); display: block; }
+        .user-info small { font-size: 0.75rem; color: var(--text-grey); }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-gradient); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
         
         /* Main Content */
         .main-content { flex: 1; overflow-y: auto; padding: 20px; width: 100%; }
@@ -81,45 +94,46 @@
         .stat-info h3 { font-size: 1.5rem; color: var(--text-dark); margin-bottom: 2px; }
         .stat-info p { color: var(--text-grey); font-size: 0.8rem; }
 
-        /* Tables */
+        /* Tables (Product Display Fix) */
         .table-container { background: var(--white); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; overflow-x: auto; }
         .table-header-actions { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 10px 15px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; vertical-align: middle; /* Center vertically */ }
         th { background-color: var(--bg-light); font-weight: 600; color: var(--text-grey); text-transform: uppercase; font-size: 0.75rem; }
         
-        /* Product Image */
-        .product-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-color); }
+        .product-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color); }
 
         .badge { padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
         .badge-success { background: #e8f5e9; color: #2e7d32; }
         .badge-danger { background: #ffebee; color: #c62828; }
 
-        /* Modals */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .modal-box { background: var(--white); padding: 20px; border-radius: 12px; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        /* Modals (Product Display Fix) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; /* Higher Z-Index */ display: flex; justify-content: center; align-items: center; }
+        .modal-box { background: var(--white); padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; text-align: left; /* Text left inside modal */ box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
         
+        /* Image Preview Container */
+        #img-preview-container { 
+            width: 120px; height: 120px; 
+            margin: 10px auto; 
+            border: 1px dashed #ccc; 
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            background: var(--bg-light);
+            display: flex; justify-content: center; align-items: center;
+        }
+        #img-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .placeholder-icon { color: var(--text-grey); font-size: 2rem; }
+
         /* Thermal Receipt Print Styles */
-        #receipt-area {
-            display: none;
-            font-family: 'Courier New', Courier, monospace;
-            width: 58mm;
-            background: white;
-            padding: 10px;
-            color: black;
-            font-size: 12px;
-        }
-        @media print {
-            body * { visibility: hidden; }
-            #receipt-area, #receipt-area * { visibility: visible; }
-            #receipt-area { position: absolute; left: 0; top: 0; width: 100%; }
-        }
+        #receipt-area { display: none; font-family: 'Courier New', Courier, monospace; width: 58mm; background: white; padding: 10px; color: black; font-size: 12px; }
+        @media print { body * { visibility: hidden; } #receipt-area, #receipt-area * { visibility: visible; } #receipt-area { position: absolute; left: 0; top: 0; width: 100%; } }
         .receipt-line { display: flex; justify-content: space-between; margin-bottom: 2px; }
         .receipt-divider { border-bottom: 1px dashed black; margin: 5px 0; }
 
         /* Toast */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
         .toast { background: var(--white); color: var(--text-dark); padding: 10px 20px; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); margin-top: 10px; border-left: 5px solid #333; animation: slideIn 0.3s ease; font-size: 0.9rem; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .dark-mode-toggle { cursor: pointer; font-size: 1.1rem; margin-left: auto; }
@@ -143,7 +157,7 @@
         <div class="login-card">
             <img src="https://z-cdn-media.chatglm.cn/files/4290bee0-abc0-47e0-8e66-4a6e6be5a4b6.png?auth_key=1880742598-c25a2509e4bb43be8fd9bc3fc9c0cfae-0-fad548f3de0230491849ab62f429c188" class="login-logo">
             <h2 class="login-title" style="color:var(--primary-dark)">YM Market</h2>
-            <p class="login-subtitle">Selamat Datang</p>
+            <p class="login-subtitle">ERP Ultimate Edition</p>
             <form id="login-form">
                 <div class="form-group"><label class="form-label">Email</label><input type="email" id="email" class="form-control" required></div>
                 <div class="form-group"><label class="form-label">Password</label><input type="password" id="password" class="form-control" required></div>
@@ -173,8 +187,11 @@
             </ul>
             <div class="user-profile">
                 <div class="user-avatar" id="user-avatar-initial">A</div>
-                <div class="user-info"><strong id="user-email-display">Admin</strong></div>
-                <button onclick="logout()" style="margin-left: auto; border: none; background: none; cursor: pointer; color: var(--danger);"><i class="fas fa-sign-out-alt"></i></button>
+                <div class="user-info">
+                    <strong id="user-email-display">Admin</strong>
+                    <small>Owner</small>
+                </div>
+                <button onclick="logout()" style="margin-left: auto; border: none; background: none; cursor: pointer; color: var(--danger); font-size: 1.2rem;"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </nav>
 
@@ -200,19 +217,17 @@
             <section id="order-section" class="view-section hidden">
                 <div class="page-header"><h2 class="page-title">Kasir</h2></div>
                 <div class="stats-grid" style="grid-template-columns: 1fr 1.5fr;">
-                    
                     <!-- Kolom Kiri: Input Produk -->
                     <div class="table-container" style="padding: 15px; height: fit-content;">
                         <!-- Info Pelanggan -->
                         <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
                             <h5 style="margin-bottom: 5px;">Data Pelanggan</h5>
                             <div class="form-group"><input type="text" id="cust-name" class="form-control" placeholder="Nama Pelanggan"></div>
-                            <div class="form-group"><input type="tel" id="cust-phone" class="form-control" placeholder="No HP (Opsional)"></div>
+                            <div class="form-group"><input type="tel" id="cust-phone" class="form-control" placeholder="No HP"></div>
                         </div>
-
                         <!-- Pilihan Produk -->
                         <div class="form-group"><label class="form-label">Pilih Produk</label><select id="order-product-select" class="form-control" required onchange="updateCartPrice()"><option value="">-- Pilih Produk --</option></select></div>
-                        <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0;">
                             <div class="form-group"><label class="form-label">Jumlah</label><input type="number" id="order-qty" class="form-control" min="1" value="1" required></div>
                             <div class="form-group"><label class="form-label">Total Harga</label><input type="text" id="order-total-display" class="form-control" readonly style="background: var(--bg-light); font-weight: bold;"></div>
                         </div>
@@ -222,25 +237,13 @@
                     <!-- Kolom Kanan: Keranjang -->
                     <div class="table-container" style="display: flex; flex-direction: column; height: 500px;">
                         <div class="table-header-actions"><h4>Keranjang Belanja</h4></div>
-                        <div style="flex: 1; overflow-y: auto;">
-                            <table style="font-size: 0.9rem;">
-                                <thead><tr><th>Produk</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr></thead>
-                                <tbody id="cart-body">
-                                    <tr><td colspan="4" style="text-align:center; color:#999; padding: 20px;">Keranjang kosong</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <div style="flex: 1; overflow-y: auto;"><table style="font-size: 0.9rem;"><thead><tr><th>Produk</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr></thead><tbody id="cart-body"><tr><td colspan="4" style="text-align:center; color:#999; padding: 20px;">Keranjang kosong</td></tr></tbody></table></div>
                         <!-- Footer Keranjang -->
                         <div style="padding: 15px; background: var(--bg-light); border-top: 1px solid var(--border-color);">
-                            <div class="receipt-line" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 5px;">
-                                <span>Total Bayar:</span> <span id="cart-grand-total">Rp 0</span>
-                            </div>
-                            <button id="btn-checkout" class="btn btn-success" style="width: 100%; justify-content: center; margin-top: 10px; font-size: 1.1rem;">
-                                <i class="fas fa-shopping-bag"></i> BAYAR & CETAK STRUK
-                            </button>
+                            <div class="receipt-line" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 5px;"><span>Total Bayar:</span> <span id="cart-grand-total">Rp 0</span></div>
+                            <button id="btn-checkout" class="btn btn-success" style="width: 100%; justify-content: center; margin-top: 10px; font-size: 1.1rem;"><i class="fas fa-shopping-bag"></i> BAYAR & CETAK STRUK</button>
                         </div>
                     </div>
-                </div>
             </section>
 
             <!-- 3. PRODUK -->
@@ -321,7 +324,7 @@
         </main>
     </div>
 
-    <!-- HIDDEN RECEIPT AREA (THERMAL PRINT) -->
+    <!-- HIDDEN RECEIPT AREA -->
     <div id="receipt-area">
         <div style="text-align: center; margin-bottom: 10px;"><h3 style="margin:0;">YM MARKET</h3><p style="margin:0; font-size: 10px;">Jln. Contoh No. 123<br>Telp: 08123456789</p></div>
         <div class="receipt-divider"></div>
@@ -336,7 +339,7 @@
     </div>
 
     <!-- MODALS -->
-    <div id="productModal" class="hidden modal-overlay"><div class="modal-box"><h3>Produk</h3><form id="product-form"><input type="hidden" id="prod-id"><div class="form-group"><label class="form-label">Foto</label><input type="file" id="prod-file" accept="image/*" class="form-control" onchange="previewImage(this)"><div id="img-preview-container" style="width:100px;height:100px;margin:5px auto;border:1px dashed #ccc;overflow:hidden"><i class="fas fa-image placeholder-icon"></i><img id="img-preview" class="hidden"></div></div></div><div class="form-group"><label class="form-label">Nama Produk</label><input type="text" id="prod-name" class="form-control" required></div><div class="form-group"><label class="form-label">Kategori</label><select id="prod-category" class="form-control"></select></div><div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;"><div class="form-group"><label class="form-label">Harga</label><input type="number" id="prod-price" class="form-control" required></div><div class="form-group"><label class="form-label">Stok</label><input type="number" id="prod-stock" class="form-control" required></div></div><input type="hidden" id="prod-image-base64"><div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('productModal')">Batal</button><button type="submit" class="btn btn-primary" id="btn-save-product">Simpan</button></div></form></div></div>
+    <div id="productModal" class="hidden modal-overlay"><div class="modal-box"><h3 style="text-align: center;">Produk</h3><form id="product-form"><input type="hidden" id="prod-id"><div class="form-group"><label class="form-label">Foto Produk</label><input type="file" id="prod-file" accept="image/*" class="form-control" onchange="previewImage(this)"><div id="img-preview-container"><i class="fas fa-image placeholder-icon"></i><img id="img-preview" class="hidden"></div></div></div><div class="form-group"><label class="form-label">Nama Produk</label><input type="text" id="prod-name" class="form-control" required></div><div class="form-group"><label class="form-label">Kategori</label><select id="prod-category" class="form-control"></select></div><div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;"><div class="form-group"><label class="form-label">Harga</label><input type="number" id="prod-price" class="form-control" required></div><div class="form-group"><label class="form-label">Stok</label><input type="number" id="prod-stock" class="form-control" required></div></div><input type="hidden" id="prod-image-base64"><div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('productModal')">Batal</button><button type="submit" class="btn btn-primary" id="btn-save-product">Simpan</button></div></form></div></div>
     
     <div id="adjustmentModal" class="hidden modal-overlay"><div class="modal-box"><h3>Penyesuaian Stok</h3><form id="adjustment-form"><div class="form-group"><label class="form-label">Pilih Produk</label><select id="adj-product-select" class="form-control" required></select></div><div class="form-group"><label class="form-label">Tipe Penyesuaian</label><select id="adj-type" class="form-control"><option value="add">Tambah Stok (+)</option><option value="sub">Kurangi Stok (-)</option></select></div><div class="form-group"><label class="form-label">Jumlah</label><input type="number" id="adj-qty" class="form-control" min="1" required></div><div class="form-group"><label class="form-label">Alasan</label><input type="text" id="adj-reason" class="form-control" placeholder="Contoh: Barang Rusak" required></div><div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('adjustmentModal')">Batal</button><button type="submit" class="btn btn-secondary">Simpan</button></div></form></div></div>
     
@@ -357,7 +360,7 @@
         };
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getDatabase(app);
         let currentUser = null, productsData = {}, ordersData = {}, expensesData = {}, customersData = {}, suppliersData = {}, salesChartInstance = null;
-        let cart = []; // STATE KERANJANG
+        let cart = [];
 
         const categories = ["Makanan", "Minuman", "Snack", "Bumbu Dapur", "Bahan Kue", "Sayur Segar", "Buah Segar", "Daging", "Ikan", "Telur", "Susu", "Roti / Kue", "Perawatan Tubuh", "Kesehatan", "Kosmetik", "Elektronik", "Aksesoris HP", "Pakaian Pria", "Pakaian Wanita", "Sepatu", "Tas", "Mainan Anak", "Perlengkapan Rumah", "Perlengkapan Dapur", "ATK / Kantor", "Lainnya"];
 
@@ -469,7 +472,7 @@
         function renderProducts() {
             const t=document.getElementById('product-table-body'); t.innerHTML='';
             Object.entries(productsData).forEach(([k,v])=>{
-                const img = v.imageUrl ? `<img src="${v.imageUrl}" class="product-thumb">` : '<div class="product-thumb" style="background:#eee"></div>';
+                const img = v.imageUrl ? `<img src="${v.imageUrl}" class="product-thumb">` : '<div class="product-thumb" style="background:#eee; display:flex; align-items:center; justify-content:center;"><i class="fas fa-image" style="color:#ccc"></i></div>';
                 t.innerHTML += `<tr><td>${img}</td><td>${v.name}</td><td>${v.category}</td><td>${formatRupiah(v.price)}</td><td>${v.stock}</td><td><button class="btn btn-sm" onclick="editProduct('${k}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="deleteProduct('${k}')"><i class="fas fa-trash"></i></button></td></tr>`;
             });
         }
@@ -517,7 +520,6 @@
             const name = opt.text;
             const maxStock = productsData[k].stock;
 
-            // Cek total stok di keranjang
             const existingItem = cart.find(item => item.id === k);
             const currentQtyInCart = existingItem ? existingItem.qty : 0;
 
@@ -529,13 +531,7 @@
                 existingItem.qty += qty;
                 existingItem.total += price * qty;
             } else {
-                cart.push({
-                    id: k,
-                    name: name,
-                    price: price,
-                    qty: qty,
-                    total: price * qty
-                });
+                cart.push({ id: k, name: name, price: price, qty: qty, total: price * qty });
             }
             
             renderCart();
@@ -582,21 +578,17 @@
             const cPhone = document.getElementById('cust-phone').value || '-';
             const cId = cPhone !== '-' ? cPhone : Date.now().toString();
             
-            // Save Customer
             set(ref(db, `ym_market_data/customers/${cId}`), { name: cName, phone: cPhone, lastVisit: new Date().toISOString() });
 
-            // Checkout Process
             const transactionId = Date.now();
             let grandTotal = 0;
 
-            // Validasi stok lagi sebelum final (safety)
             for (const item of cart) {
                 if (item.qty > productsData[item.id].stock) {
                     return showToast(`Stok ${item.name} tidak cukup saat checkout!`, 'error');
                 }
             }
 
-            // Proses Update DB & Stock
             for (const item of cart) {
                 const orderData = { 
                     transactionId: transactionId,
@@ -612,10 +604,8 @@
                 grandTotal += item.total;
             }
 
-            // Cetak Struk
             printReceipt(cart, grandTotal);
 
-            // Reset
             cart = [];
             renderCart();
             document.getElementById('cust-name').value = '';
@@ -628,13 +618,13 @@
             itemsDiv.innerHTML = '';
             items.forEach(item => {
                 itemsDiv.innerHTML += `
-                <div class="receipt-line"><span>${item.name}</span></div>
-                <div class="receipt-line"><span>${item.qty} x ${formatRupiah(item.price/item.qty)}</span></div>
-                <div class="receipt-line"><span>${formatRupiah(item.total)}</span></div>
+                    <div class="receipt-line"><span>${item.name}</span></div>
+                    <div class="receipt-line"><span>${item.qty} x ${formatRupiah(item.price/item.qty)}</span></div>
+                    <div class="receipt-line"><span>${formatRupiah(item.total)}</span></div>
                 `;
             });
             document.getElementById('receipt-total').innerText = formatRupiah(total);
-            document.getElementById('receipt-paid').innerText = formatRupiah(total); // Assumed full payment
+            document.getElementById('receipt-paid').innerText = formatRupiah(total); 
             document.getElementById('receipt-change').innerText = 'Rp 0';
             document.getElementById('receipt-date').innerText = new Date().toLocaleString();
             window.print();
@@ -749,7 +739,7 @@
         document.querySelectorAll('.nav-link').forEach(l=>{ l.addEventListener('click', e=>{ e.preventDefault(); document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active')); l.classList.add('active'); document.querySelectorAll('.view-section').forEach(x=>x.classList.add('hidden')); document.getElementById(l.getAttribute('data-target')).classList.remove('hidden'); if(window.innerWidth<=768) document.getElementById('sidebar').classList.remove('active'); }); });
         const sb=document.getElementById('sidebar'), ov=document.getElementById('sidebar-overlay');
         document.getElementById('mobile-toggle').onclick = ()=>{ sb.classList.toggle('active'); ov.classList.toggle('active'); };
-        ov.onclick = ()=>{ sb.classList.remove('active'); ov.classList.remove('active'); };
+        ov.onclick = ()=>{ sb.classList.remove('active'); ov.classList.remove('active'); });
 
     </script>
 </body>
