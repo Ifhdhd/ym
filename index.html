@@ -63,6 +63,7 @@
         }
         .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-danger { background-color: var(--danger); color: white; }
+        .btn-secondary { background-color: #95a5a6; color: white; }
         .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
         
         /* --- LOGIN VIEW --- */
@@ -107,7 +108,7 @@
         #app-view {
             display: flex;
             height: 100vh;
-            position: relative; /* Needed for overlay positioning */
+            position: relative;
         }
 
         /* Sidebar Overlay (Mobile only) */
@@ -120,10 +121,7 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-        .sidebar-overlay.active {
-            display: block;
-            opacity: 1;
-        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
 
         /* Sidebar */
         .sidebar {
@@ -179,7 +177,7 @@
             display: flex; align-items: center; justify-content: center;
             font-weight: bold;
         }
-        .user-info small { color: var(--text-grey); display: block; }
+        .user-info strong { font-size: 0.9rem; display: block; color: var(--text-dark); }
 
         /* Main Content */
         .main-content {
@@ -191,7 +189,7 @@
 
         /* Mobile Toggle Button */
         #mobile-toggle {
-            display: none; /* Hidden on Desktop */
+            display: none;
             background: var(--white);
             border: 1px solid #ddd;
             color: var(--text-dark);
@@ -257,7 +255,7 @@
             border-radius: 12px;
             box-shadow: var(--shadow);
             overflow: hidden;
-            overflow-x: auto; /* Allow table scroll on small screens */
+            overflow-x: auto;
         }
         .table-header-actions {
             padding: 20px;
@@ -318,38 +316,44 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- MOBILE RESPONSIVE MEDIA QUERIES --- */
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-icon {
+            font-size: 3rem;
+            color: var(--warning);
+            margin-bottom: 15px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-            /* Show Toggle Button on Mobile */
-            #mobile-toggle {
-                display: flex;
-            }
-
-            /* Move Sidebar off-screen on mobile by default */
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100%;
-                transform: translateX(-100%);
-                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-            }
-
-            /* Show sidebar when active class is added */
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            /* Main content takes full width */
-            .main-content {
-                padding: 15px;
-            }
-
-            /* Adjust page header for mobile */
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            #mobile-toggle { display: flex; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { padding: 15px; }
+            .page-header { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -379,13 +383,16 @@
                     <span id="login-loader" class="loader hidden"></span>
                 </button>
             </form>
-            <p style="margin-top: 20px; font-size: 0.8rem; color: #999;">Belum punya akun? <a href="#" onclick="alert('Silakan buat user di Firebase Console Authentication terlebih dahulu.')" style="color: #00b09b;">Hubungi Admin</a></p>
+            <p style="margin-top: 20px; font-size: 0.8rem; color: #999;">
+                Belum punya akun? 
+                <a href="#" onclick="showCustomAlert('Silakan buat user di Firebase Console Authentication terlebih dahulu.')" style="color: #00b09b;">Hubungi Admin</a>
+            </p>
         </div>
     </div>
 
-    <!-- APP VIEW (DASHBOARD & OTHERS) -->
+    <!-- APP VIEW -->
     <div id="app-view" class="hidden">
-        <!-- Overlay untuk Mobile -->
+        <!-- Overlay Mobile -->
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
         <!-- Sidebar -->
@@ -396,43 +403,19 @@
             </div>
             
             <ul class="nav-links">
-                <li class="nav-item">
-                    <a href="#" class="nav-link active" data-target="dashboard-section">
-                        <i class="fas fa-home"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-target="produk-section">
-                        <i class="fas fa-box"></i> Produk
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-target="stok-section">
-                        <i class="fas fa-boxes"></i> Stok
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-target="order-section">
-                        <i class="fas fa-shopping-cart"></i> Order
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-target="laporan-section">
-                        <i class="fas fa-chart-line"></i> Laporan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-target="setting-section">
-                        <i class="fas fa-cog"></i> Setting
-                    </a>
-                </li>
+                <li class="nav-item"><a href="#" class="nav-link active" data-target="dashboard-section"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-target="produk-section"><i class="fas fa-box"></i> Produk</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-target="stok-section"><i class="fas fa-boxes"></i> Stok</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-target="order-section"><i class="fas fa-shopping-cart"></i> Order</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-target="laporan-section"><i class="fas fa-chart-line"></i> Laporan</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-target="setting-section"><i class="fas fa-cog"></i> Setting</a></li>
             </ul>
 
             <div class="user-profile">
                 <div class="user-avatar" id="user-avatar-initial">A</div>
                 <div class="user-info">
+                    <!-- Hapus tulisan Owner di sini -->
                     <strong id="user-email-display">Admin</strong>
-                    <small>Owner</small>
                 </div>
                 <button onclick="logout()" style="margin-left: auto; border: none; background: none; cursor: pointer; color: var(--danger);">
                     <i class="fas fa-sign-out-alt"></i>
@@ -440,12 +423,9 @@
             </div>
         </nav>
 
-        <!-- Main Content Area -->
+        <!-- Main Content -->
         <main class="main-content">
-            <!-- Tombol Hamburger Menu untuk Mobile -->
-            <button id="mobile-toggle" class="btn">
-                <i class="fas fa-bars"></i> Menu
-            </button>
+            <button id="mobile-toggle" class="btn"><i class="fas fa-bars"></i> Menu</button>
 
             <!-- 1. DASHBOARD SECTION -->
             <section id="dashboard-section" class="view-section">
@@ -453,70 +433,42 @@
                     <h2 class="page-title">Dashboard Overview</h2>
                     <p style="color: var(--text-grey);" id="current-date"></p>
                 </div>
-
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-info">
-                            <h3 id="dash-total-products">0</h3>
-                            <p>Total Produk</p>
-                        </div>
+                        <div class="stat-info"><h3 id="dash-total-products">0</h3><p>Total Produk</p></div>
                         <div class="stat-icon bg-blue"><i class="fas fa-box"></i></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-info">
-                            <h3 id="dash-low-stock">0</h3>
-                            <p>Stok Menipis</p>
-                        </div>
+                        <div class="stat-info"><h3 id="dash-low-stock">0</h3><p>Stok Menipis</p></div>
                         <div class="stat-icon bg-orange"><i class="fas fa-exclamation-triangle"></i></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-info">
-                            <h3 id="dash-total-orders">0</h3>
-                            <p>Total Order</p>
-                        </div>
+                        <div class="stat-info"><h3 id="dash-total-orders">0</h3><p>Total Order</p></div>
                         <div class="stat-icon bg-purple"><i class="fas fa-shopping-bag"></i></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-info">
-                            <h3 id="dash-revenue">Rp 0</h3>
-                            <p>Total Pendapatan</p>
-                        </div>
+                        <div class="stat-info"><h3 id="dash-revenue">Rp 0</h3><p>Total Pendapatan</p></div>
                         <div class="stat-icon bg-green"><i class="fas fa-wallet"></i></div>
                     </div>
                 </div>
-
-                <div class="chart-container">
-                    <canvas id="salesChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="salesChart"></canvas></div>
             </section>
 
             <!-- 2. PRODUK SECTION -->
             <section id="produk-section" class="view-section hidden">
                 <div class="page-header">
                     <h2 class="page-title">Manajemen Produk</h2>
-                    <button class="btn btn-primary" onclick="openModal('productModal')">
-                        <i class="fas fa-plus"></i> Tambah Produk
-                    </button>
+                    <button class="btn btn-primary" onclick="openModal('productModal')"><i class="fas fa-plus"></i> Tambah Produk</button>
                 </div>
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Nama Produk</th>
-                                <th>Kategori</th>
-                                <th>Harga</th>
-                                <th>Stok</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="product-table-body">
-                            <!-- Data will be populated here -->
-                        </tbody>
+                        <thead><tr><th>Nama Produk</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+                        <tbody id="product-table-body"></tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- 3. STOK SECTION (Simplified View of Stock Status) -->
+            <!-- 3. STOK SECTION -->
             <section id="stok-section" class="view-section hidden">
                 <div class="page-header">
                     <h2 class="page-title">Status Stok Gudang</h2>
@@ -524,36 +476,21 @@
                 </div>
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>SKU</th>
-                                <th>Nama Produk</th>
-                                <th>Stok Saat Ini</th>
-                                <th>Status</th>
-                                <th>Update Terakhir</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stock-table-body">
-                            <!-- Data shared from Products but filtered view -->
-                        </tbody>
+                        <thead><tr><th>SKU</th><th>Nama Produk</th><th>Stok Saat Ini</th><th>Status</th><th>Update Terakhir</th></tr></thead>
+                        <tbody id="stock-table-body"></tbody>
                     </table>
                 </div>
             </section>
 
             <!-- 4. ORDER SECTION -->
             <section id="order-section" class="view-section hidden">
-                <div class="page-header">
-                    <h2 class="page-title">Input Order Penjualan</h2>
-                </div>
+                <div class="page-header"><h2 class="page-title">Input Order Penjualan</h2></div>
                 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-                    <!-- Form Order -->
                     <div class="table-container" style="padding: 20px;">
                         <form id="order-form">
                             <div class="form-group">
                                 <label class="form-label">Pilih Produk</label>
-                                <select id="order-product-select" class="form-control" required onchange="updateOrderPrice()">
-                                    <option value="">-- Pilih Produk --</option>
-                                </select>
+                                <select id="order-product-select" class="form-control" required onchange="updateOrderPrice()"><option value="">-- Pilih Produk --</option></select>
                             </div>
                             <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0; gap: 10px;">
                                 <div class="form-group">
@@ -569,24 +506,12 @@
                                 <label class="form-label">Catatan</label>
                                 <textarea id="order-notes" class="form-control" rows="2" placeholder="Catatan pelanggan..."></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                                <i class="fas fa-save"></i> Proses Order
-                            </button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;"><i class="fas fa-save"></i> Proses Order</button>
                         </form>
                     </div>
-
-                    <!-- Recent Orders Mini List -->
                     <div class="table-container">
-                        <div class="table-header-actions">
-                            <h4>Riwayat Order</h4>
-                        </div>
-                        <div style="max-height: 400px; overflow-y: auto;">
-                            <table style="font-size: 0.9rem;">
-                                <tbody id="recent-orders-body">
-                                    <!-- Populated via JS -->
-                                </tbody>
-                            </table>
-                        </div>
+                        <div class="table-header-actions"><h4>Riwayat Order</h4></div>
+                        <div style="max-height: 400px; overflow-y: auto;"><table style="font-size: 0.9rem;"><tbody id="recent-orders-body"></tbody></table></div>
                     </div>
                 </div>
             </section>
@@ -595,84 +520,41 @@
              <section id="laporan-section" class="view-section hidden">
                 <div class="page-header">
                     <h2 class="page-title">Laporan Penjualan</h2>
-                    <button class="btn btn-sm btn-primary" onclick="window.print()">
-                        <i class="fas fa-print"></i> Cetak
-                    </button>
+                    <button class="btn btn-sm btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Cetak</button>
                 </div>
                 <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>ID Order</th>
-                                <th>Produk</th>
-                                <th>Qty</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="report-table-body">
-                            <!-- Data -->
-                        </tbody>
-                    </table>
+                    <table><thead><tr><th>Tanggal</th><th>ID Order</th><th>Produk</th><th>Qty</th><th>Total</th></tr></thead><tbody id="report-table-body"></tbody></table>
                 </div>
             </section>
 
              <!-- 6. SETTING SECTION -->
              <section id="setting-section" class="view-section hidden">
-                <div class="page-header">
-                    <h2 class="page-title">Pengaturan</h2>
-                </div>
+                <div class="page-header"><h2 class="page-title">Pengaturan</h2></div>
                 <div class="table-container" style="padding: 30px; max-width: 600px;">
-                    <div class="form-group">
-                        <label class="form-label">Nama Toko</label>
-                        <input type="text" value="YM Market" class="form-control" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Versi Aplikasi</label>
-                        <input type="text" value="1.0.0 (Mobile Fix)" class="form-control" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Database URL</label>
-                        <input type="text" value="Firebase Realtime DB" class="form-control" disabled>
-                    </div>
+                    <div class="form-group"><label class="form-label">Nama Toko</label><input type="text" value="YM Market" class="form-control" disabled></div>
+                    <div class="form-group"><label class="form-label">Versi Aplikasi</label><input type="text" value="1.0.0 (Final)" class="form-control" disabled></div>
                     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-                    <button class="btn btn-danger" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> Keluar Akun
-                    </button>
+                    <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar Akun</button>
                 </div>
             </section>
 
         </main>
     </div>
 
-    <!-- MODAL TAMBAH PRODUK -->
-    <div id="productModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center;">
+    <!-- MODAL PRODUK -->
+    <div id="productModal" class="hidden modal-overlay">
         <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px;">
             <h3 style="margin-bottom: 20px;">Tambah/Edit Produk</h3>
             <form id="product-form">
                 <input type="hidden" id="prod-id">
-                <div class="form-group">
-                    <label class="form-label">Nama Produk</label>
-                    <input type="text" id="prod-name" class="form-control" required>
-                </div>
+                <div class="form-group"><label class="form-label">Nama Produk</label><input type="text" id="prod-name" class="form-control" required></div>
                 <div class="form-group">
                     <label class="form-label">Kategori</label>
-                    <select id="prod-category" class="form-control">
-                        <option value="Makanan">Makanan</option>
-                        <option value="Minuman">Minuman</option>
-                        <option value="Elektronik">Elektronik</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
+                    <select id="prod-category" class="form-control"><option value="Makanan">Makanan</option><option value="Minuman">Minuman</option><option value="Elektronik">Elektronik</option><option value="Lainnya">Lainnya</option></select>
                 </div>
                 <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0;">
-                    <div class="form-group">
-                        <label class="form-label">Harga (Rp)</label>
-                        <input type="number" id="prod-price" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Stok Awal</label>
-                        <input type="number" id="prod-stock" class="form-control" required>
-                    </div>
+                    <div class="form-group"><label class="form-label">Harga (Rp)</label><input type="number" id="prod-price" class="form-control" required></div>
+                    <div class="form-group"><label class="form-label">Stok Awal</label><input type="number" id="prod-stock" class="form-control" required></div>
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button type="button" class="btn" style="background: #eee; flex: 1;" onclick="closeModal('productModal')">Batal</button>
@@ -682,13 +564,35 @@
         </div>
     </div>
 
+    <!-- MODAL ALERT (Custom Pengganti Alert Browser) -->
+    <div id="alertModal" class="hidden modal-overlay">
+        <div class="modal-box">
+            <i class="fas fa-info-circle modal-icon" style="color: var(--accent-blue);"></i>
+            <h3 style="margin-bottom: 10px;">Informasi</h3>
+            <p id="alert-message" style="color: var(--text-grey); margin-bottom: 20px;"></p>
+            <button class="btn btn-primary" onclick="closeModal('alertModal')">OK</button>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRM (Custom Pengganti Confirm Browser) -->
+    <div id="confirmModal" class="hidden modal-overlay">
+        <div class="modal-box">
+            <i class="fas fa-exclamation-triangle modal-icon" style="color: var(--warning);"></i>
+            <h3 style="margin-bottom: 10px;">Konfirmasi</h3>
+            <p id="confirm-message" style="color: var(--text-grey); margin-bottom: 20px;"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirm-no">Batal</button>
+                <button class="btn btn-danger" id="confirm-yes">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
     <!-- FIREBASE SDK & APP LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyBRc8phuH3BoPXPXpUt5L7SmvnB4iTw2hQ",
             authDomain: "ym-marketplace-f0eea.firebaseapp.com",
@@ -700,22 +604,18 @@
             measurementId: "G-3EFP5Z1TV0"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-
-        // State Global
         let currentUser = null;
         let productsData = {};
         let ordersData = {};
         let salesChartInstance = null;
+        let confirmCallback = null;
 
-        // --- HELPER FUNCTIONS ---
-        const formatRupiah = (num) => {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(num);
-        };
-
+        // --- HELPERS ---
+        const formatRupiah = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(num);
+        
         const showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -726,11 +626,43 @@
             setTimeout(() => toast.remove(), 3000);
         };
 
-        // --- AUTH LOGIC ---
+        // Custom Alert (Pengganti browser alert)
+        window.showCustomAlert = (msg) => {
+            document.getElementById('alert-message').innerText = msg;
+            const modal = document.getElementById('alertModal');
+            modal.classList.remove('hidden');
+        };
+
+        // Custom Confirm (Pengganti browser confirm)
+        window.showCustomConfirm = (msg, callback) => {
+            document.getElementById('confirm-message').innerText = msg;
+            confirmCallback = callback;
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('hidden');
+        };
+
+        // --- MODAL HANDLERS ---
+        window.openModal = (id) => {
+            document.getElementById(id).classList.remove('hidden');
+        };
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.add('hidden');
+        };
+
+        // Confirm Buttons Listeners
+        document.getElementById('confirm-yes').onclick = () => {
+            closeModal('confirmModal');
+            if (confirmCallback) confirmCallback();
+            confirmCallback = null;
+        };
+        document.getElementById('confirm-no').onclick = () => {
+            closeModal('confirmModal');
+            confirmCallback = null;
+        };
+
+        // --- AUTH ---
         window.logout = () => {
-            signOut(auth).then(() => {
-                showToast('Berhasil keluar');
-            }).catch(err => showToast(err.message, 'error'));
+            signOut(auth).then(() => showToast('Berhasil keluar')).catch(err => showToast(err.message, 'error'));
         };
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -739,13 +671,10 @@
             const password = document.getElementById('password').value;
             const btnText = document.getElementById('login-text');
             const loader = document.getElementById('login-loader');
-
             btnText.classList.add('hidden');
             loader.classList.remove('hidden');
-
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                // Login success handled by onAuthStateChanged
             } catch (error) {
                 showToast('Login gagal: ' + error.message, 'error');
                 btnText.classList.remove('hidden');
@@ -760,8 +689,6 @@
                 document.getElementById('app-view').classList.remove('hidden');
                 document.getElementById('user-email-display').innerText = user.email;
                 document.getElementById('user-avatar-initial').innerText = user.email.charAt(0).toUpperCase();
-                
-                // Load Data
                 initDataListeners();
             } else {
                 currentUser = null;
@@ -773,8 +700,6 @@
         // --- DATA LISTENERS ---
         function initDataListeners() {
             const userPath = `users/${currentUser.uid}`;
-            
-            // Listen Products
             onValue(ref(db, `${userPath}/products`), (snapshot) => {
                 productsData = snapshot.val() || {};
                 renderProducts();
@@ -782,8 +707,6 @@
                 populateProductSelect();
                 updateDashboard();
             });
-
-            // Listen Orders
             onValue(ref(db, `${userPath}/orders`), (snapshot) => {
                 ordersData = snapshot.val() || {};
                 renderOrders();
@@ -791,57 +714,30 @@
             });
         }
 
-        // --- NAVIGATION LOGIC (WITH MOBILE FIX) ---
+        // --- NAVIGATION ---
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.view-section');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         const toggleBtn = document.getElementById('mobile-toggle');
+        const closeSidebar = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
 
-        // Fungsi untuk menutup sidebar (Mobile)
-        const closeSidebar = () => {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        };
-
-        // Toggle Sidebar saat tombol menu diklik
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        });
-
-        // Tutup sidebar jika overlay diklik
+        toggleBtn.addEventListener('click', () => { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); });
         overlay.addEventListener('click', closeSidebar);
 
-        // Logic Pindah Halaman
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Active state
                 navLinks.forEach(n => n.classList.remove('active'));
                 link.classList.add('active');
-
-                // Show Section
                 const targetId = link.getAttribute('data-target');
                 sections.forEach(sec => sec.classList.add('hidden'));
                 document.getElementById(targetId).classList.remove('hidden');
-
-                // Tutup sidebar otomatis jika di Mobile
-                if (window.innerWidth <= 768) {
-                    closeSidebar();
-                }
+                if (window.innerWidth <= 768) closeSidebar();
             });
         });
 
-        // --- PRODUCT MANAGEMENT ---
-        window.openModal = (id) => {
-            document.getElementById(id).classList.remove('hidden');
-            document.getElementById(id).style.display = 'flex'; // Fix flex override
-        };
-        window.closeModal = (id) => {
-            document.getElementById(id).classList.add('hidden');
-        };
-
+        // --- PRODUCT ---
         document.getElementById('product-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const id = document.getElementById('prod-id').value;
@@ -849,18 +745,10 @@
             const category = document.getElementById('prod-category').value;
             const price = Number(document.getElementById('prod-price').value);
             const stock = Number(document.getElementById('prod-stock').value);
-
             const userPath = `users/${currentUser.uid}/products`;
 
-            if (id) {
-                // Update
-                update(ref(db, `${userPath}/${id}`), { name, category, price, stock });
-                showToast('Produk diperbarui');
-            } else {
-                // Create
-                push(ref(db, userPath), { name, category, price, stock });
-                showToast('Produk ditambahkan');
-            }
+            if (id) { update(ref(db, `${userPath}/${id}`), { name, category, price, stock }); showToast('Produk diperbarui'); } 
+            else { push(ref(db, userPath), { name, category, price, stock }); showToast('Produk ditambahkan'); }
             closeModal('productModal');
             e.target.reset();
             document.getElementById('prod-id').value = '';
@@ -877,10 +765,10 @@
         };
 
         window.deleteProduct = (key) => {
-            if(confirm('Yakin ingin menghapus produk ini?')) {
+            showCustomConfirm('Yakin ingin menghapus produk ini?', () => {
                 remove(ref(db, `users/${currentUser.uid}/products/${key}`));
                 showToast('Produk dihapus', 'error');
-            }
+            });
         };
 
         function renderProducts() {
@@ -888,16 +776,7 @@
             tbody.innerHTML = '';
             Object.entries(productsData).forEach(([key, p]) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${p.name}</td>
-                    <td><span class="badge" style="background:#eee">${p.category}</span></td>
-                    <td>${formatRupiah(p.price)}</td>
-                    <td>${p.stock}</td>
-                    <td>
-                        <button class="btn btn-sm" style="background:#eee" onclick="editProduct('${key}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${key}')"><i class="fas fa-trash"></i></button>
-                    </td>
-                `;
+                tr.innerHTML = `<td>${p.name}</td><td><span class="badge" style="background:#eee">${p.category}</span></td><td>${formatRupiah(p.price)}</td><td>${p.stock}</td><td><button class="btn btn-sm" style="background:#eee" onclick="editProduct('${key}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="deleteProduct('${key}')"><i class="fas fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -906,55 +785,29 @@
             const tbody = document.getElementById('stock-table-body');
             tbody.innerHTML = '';
             Object.entries(productsData).forEach(([key, p]) => {
-                let statusClass = 'badge-success';
-                let statusText = 'Aman';
-                if (p.stock === 0) {
-                    statusClass = 'badge-danger';
-                    statusText = 'Habis';
-                } else if (p.stock < 10) {
-                    statusClass = 'badge-warning';
-                    statusText = 'Menipis';
-                }
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>SKU-${key.substr(0,5)}</td>
-                    <td>${p.name}</td>
-                    <td>${p.stock}</td>
-                    <td><span class="badge ${statusClass}">${statusText}</span></td>
-                    <td>-</td>
-                `;
-                tbody.appendChild(tr);
+                let statusClass = 'badge-success', statusText = 'Aman';
+                if (p.stock === 0) { statusClass = 'badge-danger'; statusText = 'Habis'; } 
+                else if (p.stock < 10) { statusClass = 'badge-warning'; statusText = 'Menipis'; }
+                tbody.innerHTML += `<tr><td>SKU-${key.substr(0,5)}</td><td>${p.name}</td><td>${p.stock}</td><td><span class="badge ${statusClass}">${statusText}</span></td><td>-</td></tr>`;
             });
         }
 
-        // --- ORDER LOGIC ---
+        // --- ORDER ---
         function populateProductSelect() {
             const select = document.getElementById('order-product-select');
             select.innerHTML = '<option value="">-- Pilih Produk --</option>';
             Object.entries(productsData).forEach(([key, p]) => {
-                if(p.stock > 0) {
-                    select.innerHTML += `<option value="${key}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`;
-                }
+                if(p.stock > 0) select.innerHTML += `<option value="${key}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`;
             });
         }
-
-        window.updateOrderPrice = () => {
-            calculateTotal();
-        };
-
-        window.calculateTotal = () => {
+        window.updateOrderPrice = window.calculateTotal = () => {
             const select = document.getElementById('order-product-select');
             const qty = document.getElementById('order-qty').value;
             const option = select.options[select.selectedIndex];
-            
             if (option && option.value) {
                 const price = option.getAttribute('data-price');
-                const total = price * qty;
-                document.getElementById('order-total-display').value = formatRupiah(total);
-            } else {
-                document.getElementById('order-total-display').value = 'Rp 0';
-            }
+                document.getElementById('order-total-display').value = formatRupiah(price * qty);
+            } else { document.getElementById('order-total-display').value = 'Rp 0'; }
         };
 
         document.getElementById('order-form').addEventListener('submit', (e) => {
@@ -962,34 +815,17 @@
             const prodKey = document.getElementById('order-product-select').value;
             const qty = Number(document.getElementById('order-qty').value);
             const option = document.getElementById('order-product-select').options[document.getElementById('order-product-select').selectedIndex];
-            
             if(!prodKey) { showToast('Pilih produk dulu', 'error'); return; }
 
             const currentStock = Number(option.getAttribute('data-stock'));
             const price = Number(option.getAttribute('data-price'));
             const prodName = option.text.split(' (Stok:')[0];
 
-            if(qty > currentStock) {
-                showToast('Stok tidak cukup!', 'error');
-                return;
-            }
+            if(qty > currentStock) { showToast('Stok tidak cukup!', 'error'); return; }
 
-            // 1. Create Order Record
-            const orderData = {
-                productId: prodKey,
-                productName: prodName,
-                quantity: qty,
-                totalPrice: price * qty,
-                date: new Date().toISOString(),
-                notes: document.getElementById('order-notes').value
-            };
-
+            const orderData = { productId: prodKey, productName: prodName, quantity: qty, totalPrice: price * qty, date: new Date().toISOString(), notes: document.getElementById('order-notes').value };
             push(ref(db, `users/${currentUser.uid}/orders`), orderData);
-
-            // 2. Decrease Stock
-            const newStock = currentStock - qty;
-            update(ref(db, `users/${currentUser.uid}/products/${prodKey}`), { stock: newStock });
-
+            update(ref(db, `users/${currentUser.uid}/products/${prodKey}`), { stock: currentStock - qty });
             showToast('Order berhasil disimpan');
             e.target.reset();
             document.getElementById('order-total-display').value = 'Rp 0';
@@ -998,101 +834,41 @@
         function renderOrders() {
             const recentBody = document.getElementById('recent-orders-body');
             const reportBody = document.getElementById('report-table-body');
-            recentBody.innerHTML = '';
-            reportBody.innerHTML = '';
-
-            // Convert to array and sort by date desc
+            recentBody.innerHTML = ''; reportBody.innerHTML = '';
             const ordersArray = Object.entries(ordersData).map(([key, val]) => ({key, ...val})).sort((a,b) => new Date(b.date) - new Date(a.date));
-
             ordersArray.forEach(order => {
                 const dateStr = new Date(order.date).toLocaleDateString('id-ID');
-                
-                // Mini list for Order page
-                const trMini = document.createElement('tr');
-                trMini.innerHTML = `
-                    <td>${order.productName}<br><small class="text-grey">${dateStr}</small></td>
-                    <td style="text-align:right">${order.quantity} x</td>
-                `;
-                recentBody.appendChild(trMini);
-
-                // Full list for Report page
-                const trReport = document.createElement('tr');
-                trReport.innerHTML = `
-                    <td>${dateStr}</td>
-                    <td>${order.key.substr(0,8)}</td>
-                    <td>${order.productName}</td>
-                    <td>${order.quantity}</td>
-                    <td>${formatRupiah(order.totalPrice)}</td>
-                `;
-                reportBody.appendChild(trReport);
+                recentBody.innerHTML += `<tr><td>${order.productName}<br><small class="text-grey">${dateStr}</small></td><td style="text-align:right">${order.quantity} x</td></tr>`;
+                reportBody.innerHTML += `<tr><td>${dateStr}</td><td>${order.key.substr(0,8)}</td><td>${order.productName}</td><td>${order.quantity}</td><td>${formatRupiah(order.totalPrice)}</td></tr>`;
             });
         }
 
-        // --- DASHBOARD & CHART ---
+        // --- DASHBOARD ---
         function updateDashboard() {
-            const productKeys = Object.keys(productsData);
-            const orderKeys = Object.keys(ordersData);
-
-            // Cards
-            document.getElementById('dash-total-products').innerText = productKeys.length;
-            
-            let lowStock = 0;
-            Object.values(productsData).forEach(p => { if(p.stock < 10) lowStock++; });
+            document.getElementById('dash-total-products').innerText = Object.keys(productsData).length;
+            let lowStock = 0; Object.values(productsData).forEach(p => { if(p.stock < 10) lowStock++; });
             document.getElementById('dash-low-stock').innerText = lowStock;
-            
-            document.getElementById('dash-total-orders').innerText = orderKeys.length;
-
-            let revenue = 0;
-            Object.values(ordersData).forEach(o => revenue += o.totalPrice);
+            document.getElementById('dash-total-orders').innerText = Object.keys(ordersData).length;
+            let revenue = 0; Object.values(ordersData).forEach(o => revenue += o.totalPrice);
             document.getElementById('dash-revenue').innerText = formatRupiah(revenue);
-
-            // Chart Logic
             renderChart(ordersData);
         }
 
         function renderChart(orders) {
             const ctx = document.getElementById('salesChart').getContext('2d');
-            
-            // Group sales by date (simple logic)
             const salesByDate = {};
             Object.values(orders).forEach(o => {
                 const date = new Date(o.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
                 salesByDate[date] = (salesByDate[date] || 0) + o.totalPrice;
             });
-
-            const labels = Object.keys(salesByDate);
-            const data = Object.values(salesByDate);
-
             if (salesChartInstance) salesChartInstance.destroy();
-
             salesChartInstance = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Penjualan (Rp)',
-                        data: data,
-                        borderColor: '#00b09b',
-                        backgroundColor: 'rgba(0, 176, 155, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Tren Penjualan Terakhir' }
-                    }
-                }
+                data: { labels: Object.keys(salesByDate), datasets: [{ label: 'Penjualan (Rp)', data: Object.values(salesByDate), borderColor: '#00b09b', backgroundColor: 'rgba(0, 176, 155, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Tren Penjualan Terakhir' } } }
             });
         }
-
-        // --- INIT ---
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        
     </script>
 </body>
 </html>
