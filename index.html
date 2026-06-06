@@ -28,6 +28,7 @@
             --sidebar-width: 250px;
             --success: #2ecc71;
             --danger: #e74c3c;
+            --warning: #f1c40f;
         }
         body.dark-mode { --bg-light: #1a1a1a; --white: #2d2d2d; --text-dark: #ecf0f1; --text-grey: #bdc3c7; --border-color: #444; --shadow: 0 4px 6px rgba(0,0,0,0.3); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
@@ -143,7 +144,7 @@
         <div class="login-card">
             <img src="https://z-cdn-media.chatglm.cn/files/4290bee0-abc0-47e0-8e66-4a6e6be5a4b6.png?auth_key=1880742598-c25a2509e4bb43be8fd9bc3fc9c0cfae-0-fad548f3de0230491849ab62f429c188" class="login-logo">
             <h2 class="login-title" style="color:var(--primary-dark)">YM Market</h2>
-            <p class="login-subtitle">Kasir Keranjang</p>
+            <p class="login-subtitle">ERP Ultimate Edition</p>
             <form id="login-form">
                 <div class="form-group"><label class="form-label">Email</label><input type="email" id="email" class="form-control" required></div>
                 <div class="form-group"><label class="form-label">Password</label><input type="password" id="password" class="form-control" required></div>
@@ -196,49 +197,28 @@
                 <div class="chart-container" style="height: 250px;"><canvas id="salesChart"></canvas></div>
             </section>
 
-            <!-- 2. KASIR (ORDER + CART) -->
+            <!-- 2. KASIR (ORDER) -->
             <section id="order-section" class="view-section hidden">
-                <div class="page-header"><h2 class="page-title">Kasir</h2></div>
-                <div class="stats-grid" style="grid-template-columns: 1fr 1.5fr;">
-                    
-                    <!-- Kolom Kiri: Input Produk -->
-                    <div class="table-container" style="padding: 15px; height: fit-content;">
-                        <!-- Info Pelanggan -->
-                        <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
-                            <h5 style="margin-bottom: 5px;">Data Pelanggan</h5>
-                            <div class="form-group"><input type="text" id="cust-name" class="form-control" placeholder="Nama Pelanggan"></div>
-                            <div class="form-group"><input type="tel" id="cust-phone" class="form-control" placeholder="No HP (Opsional)"></div>
+                <div class="page-header"><h2 class="page-title">Kasir (Point of Sale)</h2></div>
+                <div class="stats-grid" style="grid-template-columns: 2fr 1fr;">
+                    <div class="table-container" style="padding: 15px;">
+                        <!-- Customer Info -->
+                        <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                            <div class="form-group"><label class="form-label">Nama Pelanggan</label><input type="text" id="cust-name" class="form-control" placeholder="Umum"></div>
+                            <div class="form-group"><label class="form-label">No HP</label><input type="tel" id="cust-phone" class="form-control" placeholder="08xxx"></div>
                         </div>
-
-                        <!-- Pilihan Produk -->
-                        <div class="form-group"><label class="form-label">Pilih Produk</label><select id="order-product-select" class="form-control" required onchange="updateCartPrice()"><option value="">-- Pilih Produk --</option></select></div>
-                        <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="form-group"><label class="form-label">Jumlah</label><input type="number" id="order-qty" class="form-control" min="1" value="1" required></div>
-                            <div class="form-group"><label class="form-label">Total Harga</label><input type="text" id="order-total-display" class="form-control" readonly style="background: var(--bg-light); font-weight: bold;"></div>
+                        <!-- Product -->
+                        <div class="form-group"><label class="form-label">Pilih Produk</label><select id="order-product-select" class="form-control" required onchange="updateOrderPrice()"><option value="">-- Pilih Produk --</option></select></div>
+                        <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0; gap: 10px;">
+                            <div class="form-group"><label class="form-label">Jumlah</label><input type="number" id="order-qty" class="form-control" min="1" value="1" required oninput="calculateTotal()"></div>
+                            <div class="form-group"><label class="form-label">Total</label><input type="text" id="order-total-display" class="form-control" readonly style="background: var(--bg-light); font-weight: bold;"></div>
                         </div>
-                        <button id="btn-add-to-cart" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;"><i class="fas fa-plus"></i> Tambah ke Keranjang</button>
+                        <div class="form-group"><label class="form-label">Catatan</label><input type="text" id="order-notes" class="form-control" placeholder="Catatan (Opsional)"></div>
+                        <button type="submit" id="btn-submit-order" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;"><i class="fas fa-shopping-cart"></i> Proses Order & Cetak</button>
                     </div>
-
-                    <!-- Kolom Kanan: Keranjang -->
-                    <div class="table-container" style="display: flex; flex-direction: column; height: 500px;">
-                        <div class="table-header-actions"><h4>Keranjang Belanja</h4></div>
-                        <div style="flex: 1; overflow-y: auto;">
-                            <table style="font-size: 0.9rem;">
-                                <thead><tr><th>Produk</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr></thead>
-                                <tbody id="cart-body">
-                                    <tr><td colspan="4" style="text-align:center; color:#999; padding: 20px;">Keranjang kosong</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- Footer Keranjang -->
-                        <div style="padding: 15px; background: var(--bg-light); border-top: 1px solid var(--border-color);">
-                            <div class="receipt-line" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 5px;">
-                                <span>Total Bayar:</span> <span id="cart-grand-total">Rp 0</span>
-                            </div>
-                            <button id="btn-checkout" class="btn btn-success" style="width: 100%; justify-content: center; margin-top: 10px; font-size: 1.1rem;">
-                                <i class="fas fa-shopping-bag"></i> BAYAR & CETAK STRUK
-                            </button>
-                        </div>
+                    <div class="table-container" style="padding: 10px;">
+                        <div class="table-header-actions"><h4>Riwayat Terakhir</h4></div>
+                        <div style="max-height: 300px; overflow-y: auto;"><table style="font-size: 0.8rem;"><tbody id="recent-orders-body"></tbody></table></div>
                     </div>
                 </div>
             </section>
@@ -280,7 +260,9 @@
 
             <!-- 6. PELANGGAN -->
             <section id="pelanggan-section" class="view-section hidden">
-                <div class="page-header"><h2 class="page-title">Database Pelanggan</h2></div>
+                <div class="page-header">
+                    <h2 class="page-title">Database Pelanggan</h2>
+                </div>
                 <div class="table-container">
                     <table><thead><tr><th>Nama</th><th>No HP</th><th>Total Belanja</th><th>Kunjungan Terakhir</th></tr></thead><tbody id="customer-table-body"></tbody></table>
                 </div>
@@ -335,14 +317,53 @@
         <div style="text-align: center; font-size: 10px;" id="receipt-date"></div>
     </div>
 
-    <!-- MODALS -->
-    <div id="productModal" class="hidden modal-overlay"><div class="modal-box"><h3>Produk</h3><form id="product-form"><input type="hidden" id="prod-id"><div class="form-group"><label class="form-label">Foto</label><input type="file" id="prod-file" accept="image/*" class="form-control" onchange="previewImage(this)"><div id="img-preview-container" style="width:100px;height:100px;margin:5px auto;border:1px dashed #ccc;overflow:hidden"><i class="fas fa-image placeholder-icon"></i><img id="img-preview" class="hidden"></div></div></div><div class="form-group"><label class="form-label">Nama Produk</label><input type="text" id="prod-name" class="form-control" required></div><div class="form-group"><label class="form-label">Kategori</label><select id="prod-category" class="form-control"></select></div><div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;"><div class="form-group"><label class="form-label">Harga</label><input type="number" id="prod-price" class="form-control" required></div><div class="form-group"><label class="form-label">Stok</label><input type="number" id="prod-stock" class="form-control" required></div></div><input type="hidden" id="prod-image-base64"><div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('productModal')">Batal</button><button type="submit" class="btn btn-primary" id="btn-save-product">Simpan</button></div></form></div></div>
-    
-    <div id="adjustmentModal" class="hidden modal-overlay"><div class="modal-box"><h3>Penyesuaian Stok</h3><form id="adjustment-form"><div class="form-group"><label class="form-label">Pilih Produk</label><select id="adj-product-select" class="form-control" required></select></div><div class="form-group"><label class="form-label">Tipe Penyesuaian</label><select id="adj-type" class="form-control"><option value="add">Tambah Stok (+)</option><option value="sub">Kurangi Stok (-)</option></select></div><div class="form-group"><label class="form-label">Jumlah</label><input type="number" id="adj-qty" class="form-control" min="1" required></div><div class="form-group"><label class="form-label">Alasan</label><input type="text" id="adj-reason" class="form-control" placeholder="Contoh: Barang Rusak" required></div><div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('adjustmentModal')">Batal</button><button type="submit" class="btn btn-secondary">Simpan</button></div></form></div></div>
-    
-    <div id="supplierModal" class="hidden modal-overlay"><div class="modal-box"><h3>Supplier</h3><form id="supplier-form"><input type="hidden" id="supp-id"><div class="form-group"><label class="form-label">Nama Supplier</label><input type="text" id="supp-name" class="form-control" required></div><div class="form-group"><label class="form-label">No HP / Kontak</label><input type="text" id="supp-contact" class="form-control"></div><div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('supplierModal')">Batal</button><button type="submit" class="btn btn-primary">Simpan</button></div></form></div></div>
-    
-    <div id="expenseModal" class="hidden modal-overlay"><div class="modal-box"><h3>Pengeluaran</h3><form id="expense-form"><div class="form-group"><label class="form-label">Supplier</label><select id="exp-supplier-select" class="form-control"><option value="">-- Tanpa Supplier --</option></select></div><div class="form-group"><label class="form-label">Keterangan</label><input type="text" id="exp-title" class="form-control" required></div><div class="form-group"><label class="form-label">Jumlah (Rp)</label><input type="number" id="exp-amount" class="form-control" required></div><div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('expenseModal')">Batal</button><button type="submit" class="btn btn-danger">Simpan</button></div></form></div></div>
+    <!-- MODALS (Generic) -->
+    <!-- Product Modal -->
+    <div id="productModal" class="hidden modal-overlay">
+        <div class="modal-box"><h3>Produk</h3><form id="product-form">
+            <input type="hidden" id="prod-id">
+            <div class="form-group"><label class="form-label">Foto</label><input type="file" id="prod-file" accept="image/*" class="form-control" onchange="previewImage(this)"><div id="img-preview-container" style="width:100px;height:100px;margin:5px auto;border:1px dashed #ccc;overflow:hidden"><i class="fas fa-image placeholder-icon"></i><img id="img-preview" class="hidden"></div></div></div>
+            <div class="form-group"><label class="form-label">Nama Produk</label><input type="text" id="prod-name" class="form-control" required></div>
+            <div class="form-group"><label class="form-label">Kategori</label><select id="prod-category" class="form-control"></select></div>
+            <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group"><label class="form-label">Harga</label><input type="number" id="prod-price" class="form-control" required></div>
+                <div class="form-group"><label class="form-label">Stok</label><input type="number" id="prod-stock" class="form-control" required></div>
+            </div>
+            <input type="hidden" id="prod-image-base64">
+            <div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('productModal')">Batal</button><button type="submit" class="btn btn-primary" id="btn-save-product">Simpan</button></div>
+        </form></div>
+    </div>
+
+    <!-- Stock Adjustment Modal -->
+    <div id="adjustmentModal" class="hidden modal-overlay">
+        <div class="modal-box"><h3>Penyesuaian Stok</h3><form id="adjustment-form">
+            <div class="form-group"><label class="form-label">Pilih Produk</label><select id="adj-product-select" class="form-control" required></select></div>
+            <div class="form-group"><label class="form-label">Tipe Penyesuaian</label><select id="adj-type" class="form-control"><option value="add">Tambah Stok (+)</option><option value="sub">Kurangi Stok (-)</option></select></div>
+            <div class="form-group"><label class="form-label">Jumlah</label><input type="number" id="adj-qty" class="form-control" min="1" required></div>
+            <div class="form-group"><label class="form-label">Alasan</label><input type="text" id="adj-reason" class="form-control" placeholder="Contoh: Barang Rusak" required></div>
+            <div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('adjustmentModal')">Batal</button><button type="submit" class="btn btn-secondary">Simpan</button></div>
+        </form></div>
+    </div>
+
+    <!-- Supplier Modal -->
+    <div id="supplierModal" class="hidden modal-overlay">
+        <div class="modal-box"><h3>Supplier</h3><form id="supplier-form">
+            <input type="hidden" id="supp-id">
+            <div class="form-group"><label class="form-label">Nama Supplier</label><input type="text" id="supp-name" class="form-control" required></div>
+            <div class="form-group"><label class="form-label">No HP / Kontak</label><input type="text" id="supp-contact" class="form-control"></div>
+            <div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('supplierModal')">Batal</button><button type="submit" class="btn btn-primary">Simpan</button></div>
+        </form></div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="hidden modal-overlay">
+        <div class="modal-box"><h3>Pengeluaran</h3><form id="expense-form">
+            <div class="form-group"><label class="form-label">Supplier</label><select id="exp-supplier-select" class="form-control"><option value="">-- Tanpa Supplier --</option></select></div>
+            <div class="form-group"><label class="form-label">Keterangan</label><input type="text" id="exp-title" class="form-control" required></div>
+            <div class="form-group"><label class="form-label">Jumlah (Rp)</label><input type="number" id="exp-amount" class="form-control" required></div>
+            <div class="modal-actions"><button type="button" class="btn" style="background:#eee" onclick="closeModal('expenseModal')">Batal</button><button type="submit" class="btn btn-danger">Simpan</button></div>
+        </form></div>
+    </div>
 
     <!-- LOGIC -->
     <script type="module">
@@ -357,10 +378,15 @@
         };
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getDatabase(app);
         let currentUser = null, productsData = {}, ordersData = {}, expensesData = {}, customersData = {}, suppliersData = {}, salesChartInstance = null;
-        let cart = []; // STATE KERANJANG
 
-        const categories = ["Makanan", "Minuman", "Snack", "Bumbu Dapur", "Bahan Kue", "Sayur Segar", "Buah Segar", "Daging", "Ikan", "Telur", "Susu", "Roti / Kue", "Perawatan Tubuh", "Kesehatan", "Kosmetik", "Elektronik", "Aksesoris HP", "Pakaian Pria", "Pakaian Wanita", "Sepatu", "Tas", "Mainan Anak", "Perlengkapan Rumah", "Perlengkapan Dapur", "ATK / Kantor", "Lainnya"];
+        // CATEGORIES LIST
+        const categories = [
+            "Makanan", "Minuman", "Snack", "Bumbu Dapur", "Bahan Kue", "Sayur Segar", "Buah Segar", "Daging", "Ikan", "Telur", "Susu", 
+            "Roti / Kue", "Perawatan Tubuh", "Kesehatan", "Kosmetik", "Elektronik", "Aksesoris HP", "Pakaian Pria", "Pakaian Wanita", 
+            "Sepatu", "Tas", "Mainan Anak", "Perlengkapan Rumah", "Perlengkapan Dapur", "ATK / Kantor", "Lainnya"
+        ];
 
+        // HELPERS
         const formatRupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(n);
         const showToast = (m, t='success') => {
             const c = document.getElementById('toast-container'), x = document.createElement('div');
@@ -407,7 +433,8 @@
                 currentUser=u; document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-view').classList.remove('hidden');
                 document.getElementById('user-email-display').innerText=u.email;
                 document.getElementById('user-avatar-initial').innerText=u.email.charAt(0).toUpperCase();
-                initListeners(); loadTheme(); populateCategories();
+                initListeners(); loadTheme();
+                populateCategories();
             } else { currentUser=null; document.getElementById('login-view').classList.remove('hidden'); document.getElementById('app-view').classList.add('hidden'); }
         });
 
@@ -496,8 +523,8 @@
             showToast('Stok disesuaikan'); closeModal('adjustmentModal');
         });
 
-        // --- KASIR CART LOGIC ---
-        window.updateCartPrice = () => {
+        // --- CUSTOMERS & ORDER (THERMAL) ---
+        window.updateOrderPrice = window.calculateTotal = () => {
             const select = document.getElementById('order-product-select');
             const qty = document.getElementById('order-qty').value;
             const option = select.options[select.selectedIndex];
@@ -507,143 +534,60 @@
             } else { document.getElementById('order-total-display').value = 'Rp 0'; }
         };
 
-        document.getElementById('btn-add-to-cart').addEventListener('click', () => {
+        document.getElementById('btn-submit-order').addEventListener('click', async (e)=>{
+            e.preventDefault();
             const k = document.getElementById('order-product-select').value;
-            const qty = Number(document.getElementById('order-qty').value);
-            const opt = document.getElementById('order-product-select').options[document.getElementById('order-product-select').selectedIndex];
-            if (!k) return showToast('Pilih produk', 'error');
+            const q = Number(document.getElementById('order-qty').value);
+            const o = document.getElementById('order-product-select').options[document.getElementById('order-product-select').selectedIndex];
+            const p = Number(o.getAttribute('data-price'));
+            const n = o.text;
+            if(!k) return showToast('Pilih produk', 'error');
+            if(q > productsData[k].stock) return showToast('Stok kurang', 'error');
+
+            // Save/Update Customer
+            const cName = document.getElementById('cust-name').value || 'Umum';
+            const cPhone = document.getElementById('cust-phone').value || '-';
+            // Use phone as ID for uniqueness, if empty generate random ID
+            const cId = cPhone !== '-' ? cPhone : Date.now().toString();
+            const customerData = { name: cName, phone: cPhone, lastVisit: new Date().toISOString() };
+            set(ref(db, `ym_market_data/customers/${cId}`), customerData);
+
+            // Save Order
+            const orderData = { 
+                productName: n, quantity: q, totalPrice: p*q, date: new Date().toISOString(), 
+                customerId: cId, customerName: cName, notes: document.getElementById('order-notes').value 
+            };
+            push(ref(db, 'ym_market_data/orders'), orderData);
+            update(ref(db, `ym_market_data/products/${k}`), { stock: productsData[k].stock - q });
             
-            const price = Number(opt.getAttribute('data-price'));
-            const name = opt.text;
-            const maxStock = productsData[k].stock;
+            // Print Receipt
+            printReceipt(orderData);
 
-            // Cek total stok di keranjang
-            const existingItem = cart.find(item => item.id === k);
-            const currentQtyInCart = existingItem ? existingItem.qty : 0;
-
-            if ((currentQtyInCart + qty) > maxStock) {
-                return showToast(`Stok tidak cukup! Sisa: ${maxStock}`, 'error');
-            }
-
-            if (existingItem) {
-                existingItem.qty += qty;
-                existingItem.total += price * qty;
-            } else {
-                cart.push({
-                    id: k,
-                    name: name,
-                    price: price,
-                    qty: qty,
-                    total: price * qty
-                });
-            }
-            
-            renderCart();
-            showToast('Ditambahkan ke keranjang');
-            document.getElementById('order-qty').value = 1;
+            showToast('Order Berhasil'); 
+            document.getElementById('order-form').reset();
             document.getElementById('order-total-display').value = 'Rp 0';
         });
 
-        window.removeFromCart = (index) => {
-            cart.splice(index, 1);
-            renderCart();
-        };
-
-        function renderCart() {
-            const tbody = document.getElementById('cart-body');
-            tbody.innerHTML = '';
-            let grandTotal = 0;
-
-            if (cart.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999; padding: 20px;">Keranjang kosong</td></tr>';
-                document.getElementById('btn-checkout').disabled = true;
-            } else {
-                document.getElementById('btn-checkout').disabled = false;
-                cart.forEach((item, index) => {
-                    grandTotal += item.total;
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${item.name}</td>
-                            <td>${item.qty}</td>
-                            <td>${formatRupiah(item.total)}</td>
-                            <td><button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})"><i class="fas fa-trash"></i></button></td>
-                        </tr>
-                    `;
-                });
-            }
-            document.getElementById('cart-grand-total').innerText = formatRupiah(grandTotal);
-        }
-
-        document.getElementById('btn-checkout').addEventListener('click', async (e) => {
-            e.preventDefault();
-            if (cart.length === 0) return;
-
-            const cName = document.getElementById('cust-name').value || 'Umum';
-            const cPhone = document.getElementById('cust-phone').value || '-';
-            const cId = cPhone !== '-' ? cPhone : Date.now().toString();
-            
-            // Save Customer
-            set(ref(db, `ym_market_data/customers/${cId}`), { name: cName, phone: cPhone, lastVisit: new Date().toISOString() });
-
-            // Checkout Process
-            const transactionId = Date.now();
-            let grandTotal = 0;
-
-            // Validasi stok lagi sebelum final (safety)
-            for (const item of cart) {
-                if (item.qty > productsData[item.id].stock) {
-                    return showToast(`Stok ${item.name} tidak cukup saat checkout!`, 'error');
-                }
-            }
-
-            // Proses Update DB & Stock
-            for (const item of cart) {
-                const orderData = { 
-                    transactionId: transactionId,
-                    productName: item.name, 
-                    quantity: item.qty, 
-                    totalPrice: item.total, 
-                    date: new Date().toISOString(), 
-                    customerId: cId, 
-                    customerName: cName 
-                };
-                push(ref(db, 'ym_market_data/orders'), orderData);
-                update(ref(db, `ym_market_data/products/${item.id}`), { stock: productsData[item.id].stock - item.qty });
-                grandTotal += item.total;
-            }
-
-            // Cetak Struk
-            printReceipt(cart, grandTotal);
-
-            // Reset
-            cart = [];
-            renderCart();
-            document.getElementById('cust-name').value = '';
-            document.getElementById('cust-phone').value = '';
-            showToast('Transaksi Berhasil');
-        });
-
-        function printReceipt(items, total) {
+        function printReceipt(order) {
             const itemsDiv = document.getElementById('receipt-items');
-            itemsDiv.innerHTML = '';
-            items.forEach(item => {
-                itemsDiv.innerHTML += `
-                <div class="receipt-line"><span>${item.name}</span></div>
-                <div class="receipt-line"><span>${item.qty} x ${formatRupiah(item.price/item.qty)}</span></div>
-                <div class="receipt-line"><span>${formatRupiah(item.total)}</span></div>
-                `;
-            });
-            document.getElementById('receipt-total').innerText = formatRupiah(total);
-            document.getElementById('receipt-paid').innerText = formatRupiah(total); // Assumed full payment
+            itemsDiv.innerHTML = `
+                <div class="receipt-line"><span>${order.productName}</span></div>
+                <div class="receipt-line"><span>${order.quantity} x ${formatRupiah(order.totalPrice/order.quantity)}</span></div>
+                <div class="receipt-line"><span>${formatRupiah(order.totalPrice)}</span></div>
+            `;
+            document.getElementById('receipt-total').innerText = formatRupiah(order.totalPrice);
+            document.getElementById('receipt-paid').innerText = formatRupiah(order.totalPrice); // Assumed full payment
             document.getElementById('receipt-change').innerText = 'Rp 0';
             document.getElementById('receipt-date').innerText = new Date().toLocaleString();
+            
             window.print();
         }
 
-        // --- CUSTOMERS ---
         function renderCustomers() {
             const t=document.getElementById('customer-table-body'); t.innerHTML='';
-            Object.entries(customersData).forEach(([k,v])=> t.innerHTML += `<tr><td>${v.name}</td><td>${v.phone}</td><td>-</td><td>${new Date(v.lastVisit).toLocaleDateString()}</td></tr>`);
+            Object.entries(customersData).forEach(([k,v])=>{
+                t.innerHTML += `<tr><td>${v.name}</td><td>${v.phone}</td><td>-</td><td>${new Date(v.lastVisit).toLocaleDateString()}</td></tr>`;
+            });
         }
 
         // --- RETUR ---
@@ -653,9 +597,17 @@
             const q = Number(document.getElementById('retur-qty').value);
             if(!k) return;
             const p = productsData[k];
+            
+            // Add stock back
             update(ref(db, `ym_market_data/products/${k}`), { stock: p.stock + q });
-            const returnData = { productName: p.name + ' (RETUR)', quantity: q, totalPrice: -(p.price * q), date: new Date().toISOString(), type: 'retur', reason: document.getElementById('retur-reason').value };
+            
+            // Record return as "Negative Order" or Special Type for reporting
+            const returnData = {
+                productName: p.name + ' (RETUR)', quantity: q, totalPrice: -(p.price * q), 
+                date: new Date().toISOString(), type: 'retur', reason: document.getElementById('retur-reason').value
+            };
             push(ref(db, 'ym_market_data/orders'), returnData);
+            
             showToast('Retur diproses'); e.target.reset();
         });
 
@@ -683,7 +635,12 @@
         window.openExpenseModal = () => { document.getElementById('expense-form').reset(); openModal('expenseModal'); };
         document.getElementById('expense-form').addEventListener('submit', (e)=>{
             e.preventDefault();
-            const d = { supplier: document.getElementById('exp-supplier-select').value || '-', title: document.getElementById('exp-title').value, amount: Number(document.getElementById('exp-amount').value), date: new Date().toISOString() };
+            const d = { 
+                supplier: document.getElementById('exp-supplier-select').value || '-',
+                title: document.getElementById('exp-title').value, 
+                amount: Number(document.getElementById('exp-amount').value), 
+                date: new Date().toISOString() 
+            };
             push(ref(db, 'ym_market_data/expenses'), d); closeModal('expenseModal'); showToast('Pengeluaran dicatat');
         });
         function renderExpenses() {
@@ -691,7 +648,7 @@
             Object.entries(expensesData).forEach(([k,v])=> t.innerHTML += `<tr><td>${new Date(v.date).toLocaleDateString()}</td><td>${v.supplier}</td><td>${v.title}</td><td>${formatRupiah(v.amount)}</td><td><button class="btn btn-sm btn-danger" onclick="remove(ref(db,'ym_market_data/expenses/${k}'))"><i class="fas fa-trash"></i></button></td></tr>`);
         }
 
-        // --- REPORTS ---
+        // --- REPORTS & EXPORT ---
         window.exportToCSV = (type) => {
             let csvContent = "data:text/csv;charset=utf-8,";
             if(type === 'orders') {
@@ -714,8 +671,13 @@
             const dates = [...new Set([...Object.values(ordersData).map(o=>new Date(o.date).toLocaleDateString()), ...Object.values(expensesData).map(e=>new Date(e.date).toLocaleDateString())])];
             const sales = dates.map(d=>Object.values(ordersData).filter(o=>new Date(o.date).toLocaleDateString()===d).reduce((a,b)=>a+b.totalPrice,0));
             const costs = dates.map(d=>Object.values(expensesData).filter(e=>new Date(e.date).toLocaleDateString()===d).reduce((a,b)=>a+b.amount,0));
+            
             if(salesChartInstance) salesChartInstance.destroy();
-            salesChartInstance = new Chart(ctx, { type: 'bar', data: { labels: dates, datasets: [{ label: 'Pemasukan', data: sales, backgroundColor: '#2ecc71' }, { label: 'Pengeluaran', data: costs, backgroundColor: '#e74c3c' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+            salesChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: dates, datasets: [{ label: 'Pemasukan', data: sales, backgroundColor: '#2ecc71' }, { label: 'Pengeluaran', data: costs, backgroundColor: '#e74c3c' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
         }
         function updateChartTheme() { updateDashboard(); }
         function renderOrders() {
