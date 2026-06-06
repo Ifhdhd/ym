@@ -15,8 +15,8 @@
     <style>
         /* --- CSS VARIABLES & RESET --- */
         :root {
-            /* YM Brand Colors derived from description */
-            --primary-gradient: linear-gradient(135deg, #00b09b, #96c93d); /* Green-Blueish */
+            /* YM Brand Colors */
+            --primary-gradient: linear-gradient(135deg, #00b09b, #96c93d);
             --primary-dark: #004d40;
             --accent-blue: #0277bd;
             --bg-light: #f4f6f9;
@@ -107,6 +107,22 @@
         #app-view {
             display: flex;
             height: 100vh;
+            position: relative; /* Needed for overlay positioning */
+        }
+
+        /* Sidebar Overlay (Mobile only) */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
         }
 
         /* Sidebar */
@@ -117,7 +133,9 @@
             display: flex;
             flex-direction: column;
             transition: transform 0.3s ease;
+            z-index: 1000;
         }
+        
         .sidebar-header {
             padding: 20px;
             display: flex;
@@ -128,7 +146,7 @@
         .sidebar-logo { height: 32px; }
         .sidebar-brand { font-weight: 700; color: var(--primary-dark); font-size: 1.1rem; }
         
-        .nav-links { list-style: none; padding: 20px 0; flex: 1; }
+        .nav-links { list-style: none; padding: 20px 0; flex: 1; overflow-y: auto; }
         .nav-item { margin-bottom: 5px; }
         .nav-link {
             display: flex;
@@ -168,6 +186,19 @@
             flex: 1;
             overflow-y: auto;
             padding: 30px;
+            width: 100%;
+        }
+
+        /* Mobile Toggle Button */
+        #mobile-toggle {
+            display: none; /* Hidden on Desktop */
+            background: var(--white);
+            border: 1px solid #ddd;
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
         }
         
         .page-header {
@@ -175,6 +206,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .page-title { font-size: 1.5rem; font-weight: 600; color: var(--text-dark); }
 
@@ -224,6 +257,7 @@
             border-radius: 12px;
             box-shadow: var(--shadow);
             overflow: hidden;
+            overflow-x: auto; /* Allow table scroll on small screens */
         }
         .table-header-actions {
             padding: 20px;
@@ -231,8 +265,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #f0f0f0; }
         th { background-color: #f8f9fa; font-weight: 600; color: var(--text-grey); font-size: 0.85rem; text-transform: uppercase; }
         tr:hover { background-color: #fafafa; }
@@ -282,12 +318,38 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Mobile Responsive */
+        /* --- MOBILE RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 768px) {
-            .sidebar { position: absolute; height: 100%; z-index: 100; transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { padding: 15px; width: 100%; }
-            .toggle-menu { display: block; }
+            /* Show Toggle Button on Mobile */
+            #mobile-toggle {
+                display: flex;
+            }
+
+            /* Move Sidebar off-screen on mobile by default */
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                transform: translateX(-100%);
+                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            }
+
+            /* Show sidebar when active class is added */
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            /* Main content takes full width */
+            .main-content {
+                padding: 15px;
+            }
+
+            /* Adjust page header for mobile */
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -323,6 +385,9 @@
 
     <!-- APP VIEW (DASHBOARD & OTHERS) -->
     <div id="app-view" class="hidden">
+        <!-- Overlay untuk Mobile -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -377,7 +442,8 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <button class="btn btn-sm" id="mobile-toggle" style="display: none; margin-bottom: 15px;">
+            <!-- Tombol Hamburger Menu untuk Mobile -->
+            <button id="mobile-toggle" class="btn">
                 <i class="fas fa-bars"></i> Menu
             </button>
 
@@ -479,7 +545,7 @@
                 <div class="page-header">
                     <h2 class="page-title">Input Order Penjualan</h2>
                 </div>
-                <div class="stats-grid" style="grid-template-columns: 2fr 1fr;">
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
                     <!-- Form Order -->
                     <div class="table-container" style="padding: 20px;">
                         <form id="order-form">
@@ -563,7 +629,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Versi Aplikasi</label>
-                        <input type="text" value="1.0.0 (Beta)" class="form-control" disabled>
+                        <input type="text" value="1.0.0 (Mobile Fix)" class="form-control" disabled>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Database URL</label>
@@ -580,7 +646,7 @@
     </div>
 
     <!-- MODAL TAMBAH PRODUK -->
-    <div id="productModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center;">
+    <div id="productModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center;">
         <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px;">
             <h3 style="margin-bottom: 20px;">Tambah/Edit Produk</h3>
             <form id="product-form">
@@ -620,7 +686,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
@@ -725,11 +791,29 @@
             });
         }
 
-        // --- NAVIGATION LOGIC ---
+        // --- NAVIGATION LOGIC (WITH MOBILE FIX) ---
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.view-section');
         const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('mobile-toggle');
 
+        // Fungsi untuk menutup sidebar (Mobile)
+        const closeSidebar = () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+
+        // Toggle Sidebar saat tombol menu diklik
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        // Tutup sidebar jika overlay diklik
+        overlay.addEventListener('click', closeSidebar);
+
+        // Logic Pindah Halaman
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -742,15 +826,11 @@
                 sections.forEach(sec => sec.classList.add('hidden'));
                 document.getElementById(targetId).classList.remove('hidden');
 
-                // Mobile sidebar toggle
-                if(window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
+                // Tutup sidebar otomatis jika di Mobile
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
                 }
             });
-        });
-
-        document.getElementById('mobile-toggle').addEventListener('click', () => {
-            sidebar.classList.toggle('active');
         });
 
         // --- PRODUCT MANAGEMENT ---
