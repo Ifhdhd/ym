@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YM Market - Stock ERP System</title>
+    <title>YM Market - Shared ERP System</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -366,13 +366,13 @@
     <div id="login-view">
         <div class="login-card">
             <img src="https://z-cdn-media.chatglm.cn/files/4290bee0-abc0-47e0-8e66-4a6e6be5a4b6.png?auth_key=1880742598-c25a2509e4bb43be8fd9bc3fc9c0cfae-0-fad548f3de0230491849ab62f429c188" alt="YM Market Logo" class="login-logo">
-            <h2 class="login-title">Selamat Datang</h2>
-            <p class="login-subtitle">Masuk ke sistem ERP Stock YM Market</p>
+            <h2 class="login-title">YM Market ERP</h2>
+            <p class="login-subtitle">Login Tim (Shared Access)</p>
             
             <form id="login-form">
                 <div class="form-group">
                     <label class="form-label">Email Address</label>
-                    <input type="email" id="email" class="form-control" placeholder="admin@ymmarket.com" required>
+                    <input type="email" id="email" class="form-control" placeholder="email@ymmarket.com" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password</label>
@@ -384,8 +384,7 @@
                 </button>
             </form>
             <p style="margin-top: 20px; font-size: 0.8rem; color: #999;">
-                Belum punya akun? 
-                <a href="#" onclick="showCustomAlert('Silakan buat user di Firebase Console Authentication terlebih dahulu.')" style="color: #00b09b;">Hubungi Admin</a>
+                Belum punya akun? Hubungi Admin untuk pendaftaran.
             </p>
         </div>
     </div>
@@ -414,7 +413,6 @@
             <div class="user-profile">
                 <div class="user-avatar" id="user-avatar-initial">A</div>
                 <div class="user-info">
-                    <!-- Hapus tulisan Owner di sini -->
                     <strong id="user-email-display">Admin</strong>
                 </div>
                 <button onclick="logout()" style="margin-left: auto; border: none; background: none; cursor: pointer; color: var(--danger);">
@@ -531,8 +529,8 @@
              <section id="setting-section" class="view-section hidden">
                 <div class="page-header"><h2 class="page-title">Pengaturan</h2></div>
                 <div class="table-container" style="padding: 30px; max-width: 600px;">
-                    <div class="form-group"><label class="form-label">Nama Toko</label><input type="text" value="YM Market" class="form-control" disabled></div>
-                    <div class="form-group"><label class="form-label">Versi Aplikasi</label><input type="text" value="1.0.0 (Final)" class="form-control" disabled></div>
+                    <div class="form-group"><label class="form-label">Nama Toko</label><input type="text" value="YM Market (Shared Team)" class="form-control" disabled></div>
+                    <div class="form-group"><label class="form-label">Versi Aplikasi</label><input type="text" value="1.0.0 (Multi-User)" class="form-control" disabled></div>
                     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
                     <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar Akun</button>
                 </div>
@@ -564,7 +562,7 @@
         </div>
     </div>
 
-    <!-- MODAL ALERT (Custom Pengganti Alert Browser) -->
+    <!-- MODAL ALERT -->
     <div id="alertModal" class="hidden modal-overlay">
         <div class="modal-box">
             <i class="fas fa-info-circle modal-icon" style="color: var(--accent-blue);"></i>
@@ -574,7 +572,7 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIRM (Custom Pengganti Confirm Browser) -->
+    <!-- MODAL CONFIRM -->
     <div id="confirmModal" class="hidden modal-overlay">
         <div class="modal-box">
             <i class="fas fa-exclamation-triangle modal-icon" style="color: var(--warning);"></i>
@@ -626,44 +624,25 @@
             setTimeout(() => toast.remove(), 3000);
         };
 
-        // Custom Alert (Pengganti browser alert)
         window.showCustomAlert = (msg) => {
             document.getElementById('alert-message').innerText = msg;
-            const modal = document.getElementById('alertModal');
-            modal.classList.remove('hidden');
+            openModal('alertModal');
         };
 
-        // Custom Confirm (Pengganti browser confirm)
         window.showCustomConfirm = (msg, callback) => {
             document.getElementById('confirm-message').innerText = msg;
             confirmCallback = callback;
-            const modal = document.getElementById('confirmModal');
-            modal.classList.remove('hidden');
+            openModal('confirmModal');
         };
 
-        // --- MODAL HANDLERS ---
-        window.openModal = (id) => {
-            document.getElementById(id).classList.remove('hidden');
-        };
-        window.closeModal = (id) => {
-            document.getElementById(id).classList.add('hidden');
-        };
+        window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); };
+        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
 
-        // Confirm Buttons Listeners
-        document.getElementById('confirm-yes').onclick = () => {
-            closeModal('confirmModal');
-            if (confirmCallback) confirmCallback();
-            confirmCallback = null;
-        };
-        document.getElementById('confirm-no').onclick = () => {
-            closeModal('confirmModal');
-            confirmCallback = null;
-        };
+        document.getElementById('confirm-yes').onclick = () => { closeModal('confirmModal'); if (confirmCallback) confirmCallback(); confirmCallback = null; };
+        document.getElementById('confirm-no').onclick = () => { closeModal('confirmModal'); confirmCallback = null; };
 
         // --- AUTH ---
-        window.logout = () => {
-            signOut(auth).then(() => showToast('Berhasil keluar')).catch(err => showToast(err.message, 'error'));
-        };
+        window.logout = () => { signOut(auth).then(() => showToast('Berhasil keluar')).catch(err => showToast(err.message, 'error')); };
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -697,17 +676,19 @@
             }
         });
 
-        // --- DATA LISTENERS ---
+        // --- DATA LISTENERS (SHARED PATH) ---
         function initDataListeners() {
-            const userPath = `users/${currentUser.uid}`;
-            onValue(ref(db, `${userPath}/products`), (snapshot) => {
+            // PERUBAHAN DISINI: Menggunakan 'ym_market_data' bukan users/uid
+            const sharedPath = `ym_market_data`;
+            
+            onValue(ref(db, `${sharedPath}/products`), (snapshot) => {
                 productsData = snapshot.val() || {};
                 renderProducts();
                 renderStock();
                 populateProductSelect();
                 updateDashboard();
             });
-            onValue(ref(db, `${userPath}/orders`), (snapshot) => {
+            onValue(ref(db, `${sharedPath}/orders`), (snapshot) => {
                 ordersData = snapshot.val() || {};
                 renderOrders();
                 updateDashboard();
@@ -745,10 +726,11 @@
             const category = document.getElementById('prod-category').value;
             const price = Number(document.getElementById('prod-price').value);
             const stock = Number(document.getElementById('prod-stock').value);
-            const userPath = `users/${currentUser.uid}/products`;
+            // PERUBAHAN DISINI
+            const sharedPath = `ym_market_data/products`;
 
-            if (id) { update(ref(db, `${userPath}/${id}`), { name, category, price, stock }); showToast('Produk diperbarui'); } 
-            else { push(ref(db, userPath), { name, category, price, stock }); showToast('Produk ditambahkan'); }
+            if (id) { update(ref(db, `${sharedPath}/${id}`), { name, category, price, stock }); showToast('Produk diperbarui'); } 
+            else { push(ref(db, sharedPath), { name, category, price, stock }); showToast('Produk ditambahkan'); }
             closeModal('productModal');
             e.target.reset();
             document.getElementById('prod-id').value = '';
@@ -766,7 +748,8 @@
 
         window.deleteProduct = (key) => {
             showCustomConfirm('Yakin ingin menghapus produk ini?', () => {
-                remove(ref(db, `users/${currentUser.uid}/products/${key}`));
+                // PERUBAHAN DISINI
+                remove(ref(db, `ym_market_data/products/${key}`));
                 showToast('Produk dihapus', 'error');
             });
         };
@@ -824,8 +807,10 @@
             if(qty > currentStock) { showToast('Stok tidak cukup!', 'error'); return; }
 
             const orderData = { productId: prodKey, productName: prodName, quantity: qty, totalPrice: price * qty, date: new Date().toISOString(), notes: document.getElementById('order-notes').value };
-            push(ref(db, `users/${currentUser.uid}/orders`), orderData);
-            update(ref(db, `users/${currentUser.uid}/products/${prodKey}`), { stock: currentStock - qty });
+            // PERUBAHAN DISINI
+            push(ref(db, 'ym_market_data/orders'), orderData);
+            update(ref(db, `ym_market_data/products/${prodKey}`), { stock: currentStock - qty });
+            
             showToast('Order berhasil disimpan');
             e.target.reset();
             document.getElementById('order-total-display').value = 'Rp 0';
