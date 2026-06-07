@@ -46,6 +46,7 @@
         .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-danger { background-color: var(--danger); color: white; }
         .btn-secondary { background-color: #95a5a6; color: white; }
+        .btn-warning { background-color: #f39c12; color: white; } /* Ditambahkan agar tombol penyesuaian stok ada warnanya */
         .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -117,6 +118,16 @@
         .pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .cart-list { max-height: 300px; overflow-y: auto; margin-top: 20px; border-top: 1px solid var(--border-color); }
         .grand-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin-top: 20px; color: var(--primary-dark); }
+
+        /* FIX 1: Ditambahkan styling untuk container chart agar terlihat */
+        .chart-container { 
+            background: var(--white); 
+            border-radius: 12px; 
+            box-shadow: var(--shadow); 
+            padding: 20px; 
+            height: 350px; 
+            position: relative; 
+        }
 
         /* THERMAL RECE PRINT STYLES */
         #receipt-print { display: none; width: 58mm; padding: 10px; font-family: 'Courier New', Courier, monospace; font-size: 12px; color: black; background: white; }
@@ -484,7 +495,10 @@
             const p='ym_market_data';
             onValue(ref(db, `${p}/products`), s=>{ productsData=s.val()||{}; renderProducts(); renderStock(); updateDashboard(); populateProductSelects(); });
             onValue(ref(db, `${p}/orders`), s=>{ ordersData=s.val()||{}; updateDashboard(); renderFullReport(); });
-            onValue(ref(db, `${p}/expenses`), s=>{ expensesData=s.val()||{}; updateDashboard(); renderFullReport(); });
+            
+            // FIX 2: Menambahkan pemanggilan fungsi renderExpenses() agar data keuangan muncul
+            onValue(ref(db, `${p}/expenses`), s=>{ expensesData=s.val()||{}; updateDashboard(); renderFullReport(); renderExpenses(); });
+            
             onValue(ref(db, `${p}/customers`), s=>{ customersData=s.val()||{}; renderCustomers(); populateCustomerSelect(); });
         }
 
@@ -684,18 +698,20 @@
 
         // --- REPORTS & DASHBOARD ---
         function updateDashboard() {
-            const rev = Object.values(ordersData).reduce((a,b)=>a+b.grandTotal,0);
-            const exp = Object.values(expensesData).reduce((a,b)=>a+b.amount,0);
+            const rev = Object.values(ordersData).reduce((a,b)=>a+(b.grandTotal || 0),0);
+            const exp = Object.values(expensesData).reduce((a,b)=>a+(b.amount || 0),0);
             document.getElementById('dash-total-products').innerText=Object.keys(productsData).length;
             document.getElementById('dash-total-orders').innerText=Object.keys(ordersData).length;
             document.getElementById('dash-expenses').innerText=formatRupiah(exp);
             document.getElementById('dash-net-profit').innerText=formatRupiah(rev-exp);
             
-            // Flatten items for chart
-            const allItems = Object.values(ordersData).flatMap(o => o.items || [{name:o.productName, totalPrice:o.totalPrice, date:o.date}]);
+            // FIX 3: Penyesuaian logika pengambilan data (mengakomodasi format lama dan baru)
+            const allItems = Object.values(ordersData).flatMap(o => o.items || [{name: o.customerName || 'Lama', total: o.totalPrice || o.grandTotal || 0, date: o.date}]);
             const dates = [...new Set(allItems.map(i=>new Date(i.date).toLocaleDateString()))];
-            const sales = dates.map(d=>allItems.filter(i=>new Date(i.date).toLocaleDateString()===d).reduce((a,b)=>a+b.totalPrice,0));
-            const costs = dates.map(d=>Object.values(expensesData).filter(e=>new Date(e.date).toLocaleDateString()===d).reduce((a,b)=>a+b.amount,0));
+            
+            // FIX 3: Mengambil nilai total (bukan totalPrice yang tidak ada di format baru)
+            const sales = dates.map(d=>allItems.filter(i=>new Date(i.date).toLocaleDateString()===d).reduce((a,b)=>a+(b.total || 0),0));
+            const costs = dates.map(d=>Object.values(expensesData).filter(e=>new Date(e.date).toLocaleDateString()===d).reduce((a,b)=>a+(b.amount || 0),0));
             
             if(salesChartInstance) salesChartInstance.destroy();
             salesChartInstance = new Chart(document.getElementById('salesChart').getContext('2d'), {
@@ -708,13 +724,18 @@
             const t=document.getElementById('report-full-body'); t.innerHTML='';
             // Combine orders (returns included) and expenses
             const combined = [
-                ...Object.values(ordersData).map(o=>({type:'Penjualan', date:o.date, detail:`Order: ${o.customerName}`, amount:o.grandTotal})),
-                ...Object.values(expensesData).map(e=>({type:'Pengeluaran', date:e.date, detail:e.title, amount:e.amount}))
+                ...Object.values(ordersData).map(o=>({type:'Penjualan', date:o.date, detail:`Order: ${o.customerName}`, amount:o.grandTotal || 0})),
+                ...Object.values(expensesData).map(e=>({type:'Pengeluaran', date:e.date, detail:e.title, amount:e.amount || 0}))
             ].sort((a,b)=>new Date(b.date)-new Date(a.date));
             combined.forEach(v => { const color = v.type==='Penjualan'?'var(--success)':'var(--danger)'; t.innerHTML += `<tr><td><span class="badge" style="background:${color};color:#fff">${v.type}</span></td><td>${new Date(v.date).toLocaleDateString()}</td><td>${v.detail}</td><td>${formatRupiah(v.amount)}</td></tr>`; });
         }
 
         window.exportToCSV = () => showToast('Export CSV belum diaktifkan di versi multi-item', 'warning'); // Disabled for complexity in this specific update
+
+        // Saya menambahkan fungsi showCustomConfirm di sini karena dipanggil di deleteProduct tapi belum ada di kode asli
+        window.showCustomConfirm = (msg, onConfirm) => {
+            if(confirm(msg)) onConfirm();
+        };
 
     </script>
 </body>
