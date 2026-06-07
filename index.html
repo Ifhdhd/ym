@@ -46,7 +46,7 @@
         .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-danger { background-color: var(--danger); color: white; }
         .btn-secondary { background-color: #95a5a6; color: white; }
-        .btn-warning { background-color: #f39c12; color: white; } /* Ditambahkan agar tombol penyesuaian stok ada warnanya */
+        .btn-warning { background-color: #f39c12; color: white; }
         .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -102,6 +102,31 @@
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
         .badge-success { background: #e8f5e9; color: #2e7d32; } .badge-warning { background: #fff8e1; color: #f57f17; } .badge-danger { background: #ffebee; color: #c62828; }
 
+        /* DITAMBAHKAN: CSS untuk baris yang bisa diklik */
+        .clickable-row { cursor: pointer; transition: all 0.2s ease; }
+        .clickable-row:hover { background-color: rgba(0, 176, 155, 0.08) !important; }
+        .clickable-row td:first-child { position: relative; padding-left: 35px; }
+        .clickable-row td:first-child::before { 
+            content: '\f054'; font-family: 'Font Awesome 6 Free'; font-weight: 900; 
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%); 
+            font-size: 0.7rem; color: var(--text-grey); opacity: 0.5; 
+            transition: all 0.2s ease;
+        }
+        .clickable-row:hover td:first-child::before { opacity: 1; color: var(--primary-dark); transform: translateY(-50%) translateX(2px); }
+
+        /* DITAMBAHKAN: CSS untuk isi modal detail */
+        .detail-info-grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px 15px; margin-bottom: 20px; }
+        .detail-info-label { font-weight: 600; color: var(--text-grey); font-size: 0.9rem; }
+        .detail-info-value { font-size: 0.95rem; }
+        .detail-item-list { background: var(--bg-light); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .detail-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border-color); }
+        .detail-item-row:last-child { border-bottom: none; }
+        .detail-item-name { font-weight: 500; }
+        .detail-item-calc { color: var(--text-grey); font-size: 0.85rem; }
+        .detail-item-total { font-weight: 600; min-width: 120px; text-align: right; }
+        .detail-grand-total { text-align: right; font-size: 1.3rem; font-weight: 700; color: var(--primary-dark); padding-top: 10px; border-top: 2px solid var(--primary-dark); margin-top: 5px; }
+        .detail-return-badge { display: inline-block; background: #ffebee; color: #c62828; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-left: 10px; }
+
         /* Modals */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
         .modal-box { background: var(--white); padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
@@ -119,7 +144,6 @@
         .cart-list { max-height: 300px; overflow-y: auto; margin-top: 20px; border-top: 1px solid var(--border-color); }
         .grand-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin-top: 20px; color: var(--primary-dark); }
 
-        /* FIX 1: Ditambahkan styling untuk container chart agar terlihat */
         .chart-container { 
             background: var(--white); 
             border-radius: 12px; 
@@ -148,6 +172,7 @@
             .main-content { padding: 15px; }
             .page-header { flex-direction: column; align-items: flex-start; }
             .pos-grid { grid-template-columns: 1fr; }
+            .detail-info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -227,7 +252,6 @@
             <section id="order-section" class="view-section hidden">
                 <div class="page-header"><h2 class="page-title">Kasir (POS)</h2></div>
                 <div class="pos-grid">
-                    <!-- Input Area -->
                     <div class="table-container" style="padding: 20px;">
                         <form id="order-form" onsubmit="event.preventDefault(); addToCart();">
                             <div class="form-group"><label class="form-label">Pelanggan</label>
@@ -244,7 +268,6 @@
                             <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;"><i class="fas fa-plus"></i> Tambah ke Keranjang</button>
                         </form>
                     </div>
-                    <!-- Cart Area -->
                     <div class="table-container" style="padding: 20px;">
                         <h4>Keranjang Belanja</h4>
                         <div class="cart-list">
@@ -278,6 +301,7 @@
                         <button class="btn btn-secondary" onclick="exportToCSV('orders')"><i class="fas fa-file-excel"></i> Export</button>
                     </div>
                 </div>
+                <p style="margin-bottom: 15px; color: var(--text-grey); font-size: 0.85rem;"><i class="fas fa-mouse-pointer"></i> Klik baris data untuk melihat detail transaksi</p>
                 <div class="table-container"><table><thead><tr><th>Tipe</th><th>Tanggal</th><th>Detail</th><th>Nominal (Rp)</th></tr></thead><tbody id="report-full-body"></tbody></table></div>
             </section>
         </main>
@@ -400,6 +424,20 @@
         </div>
     </div>
 
+    <!-- DITAMBAHKAN: MODAL DETAIL LAPORAN -->
+    <div id="detailModal" class="hidden modal-overlay">
+        <div class="modal-box" style="max-width: 550px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="detail-modal-title" style="margin: 0;">Detail Transaksi</h3>
+                <button onclick="closeModal('detailModal')" style="border: none; background: none; cursor: pointer; font-size: 1.2rem; color: var(--text-grey);"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="detail-modal-content"></div>
+            <div class="modal-actions" style="margin-top: 25px;">
+                <button class="btn btn-primary" onclick="closeModal('detailModal')"><i class="fas fa-check"></i> Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- HIDDEN RECEIPT -->
     <div id="receipt-print">
         <div class="rcpt-center">
@@ -429,6 +467,9 @@
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getDatabase(app);
         let currentUser = null, productsData = {}, ordersData = {}, expensesData = {}, customersData = {}, cart = [];
         let salesChartInstance = null, html5QrcodeScanner = null;
+
+        // DITAMBAHKAN: Variabel untuk menyimpan data gabungan laporan
+        let reportCombinedData = [];
 
         // Helpers
         const formatRupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(n);
@@ -495,10 +536,7 @@
             const p='ym_market_data';
             onValue(ref(db, `${p}/products`), s=>{ productsData=s.val()||{}; renderProducts(); renderStock(); updateDashboard(); populateProductSelects(); });
             onValue(ref(db, `${p}/orders`), s=>{ ordersData=s.val()||{}; updateDashboard(); renderFullReport(); });
-            
-            // FIX 2: Menambahkan pemanggilan fungsi renderExpenses() agar data keuangan muncul
             onValue(ref(db, `${p}/expenses`), s=>{ expensesData=s.val()||{}; updateDashboard(); renderFullReport(); renderExpenses(); });
-            
             onValue(ref(db, `${p}/customers`), s=>{ customersData=s.val()||{}; renderCustomers(); populateCustomerSelect(); });
         }
 
@@ -620,25 +658,21 @@
             const custId = document.getElementById('order-customer-select').value;
             const custName = custId ? customersData[custId].name : "Pelanggan Umum";
             
-            // Save Order with Items array
             const total = cart.reduce((a,b)=>a+b.total, 0);
             const orderKey = push(ref(db, 'ym_market_data/orders')).key;
             await set(ref(db, `ym_market_data/orders/${orderKey}`), {
                 customerName: custName, customerId: custId, items: cart, grandTotal: total, date: new Date().toISOString()
             });
 
-            // Update Stocks
             for(const item of cart) {
                 await update(ref(db, `ym_market_data/products/${item.productId}`), { stock: productsData[item.productId].stock - item.qty });
             }
 
-            // Update Customer stats
             if(custId) {
                 const newTotal = (customersData[custId].totalTrx||0) + 1;
                 update(ref(db, `ym_market_data/customers/${custId}`), { totalTrx: newTotal });
             }
 
-            // Print
             printReceipt(orderKey, custName, total);
             
             cart=[]; renderCart(); showToast('Transaksi Berhasil');
@@ -647,7 +681,6 @@
             document.getElementById('rcpt-date').innerText = new Date().toLocaleString();
             document.getElementById('rcpt-cust').innerText = cust;
             const itemsDiv = document.getElementById('rcpt-items'); itemsDiv.innerHTML='';
-            // Find the specific order just created (since listener updates all)
             const order = ordersData[key]; 
             (order.items || []).forEach(i => {
                 itemsDiv.innerHTML += `<div class="rcpt-row"><span>${i.name}</span> <span>${i.qty} x ${formatRupiah(i.price)}</span></div>`;
@@ -684,10 +717,8 @@
             const qty=Number(document.getElementById('ret-qty').value);
             const amt=Number(document.getElementById('ret-amount').value);
 
-            // Increase Stock
             await update(ref(db, `ym_market_data/products/${k}`), { stock: productsData[k].stock + qty });
 
-            // Record Negative Sale (For Profit Calc)
             push(ref(db, 'ym_market_data/orders'), {
                 customerName: "Retur", items: [{name: productsData[k].name, qty:qty, price:0, total:-amt}],
                 grandTotal: -amt, isReturn: true, date: new Date().toISOString()
@@ -705,11 +736,8 @@
             document.getElementById('dash-expenses').innerText=formatRupiah(exp);
             document.getElementById('dash-net-profit').innerText=formatRupiah(rev-exp);
             
-            // FIX 3: Penyesuaian logika pengambilan data (mengakomodasi format lama dan baru)
             const allItems = Object.values(ordersData).flatMap(o => o.items || [{name: o.customerName || 'Lama', total: o.totalPrice || o.grandTotal || 0, date: o.date}]);
             const dates = [...new Set(allItems.map(i=>new Date(i.date).toLocaleDateString()))];
-            
-            // FIX 3: Mengambil nilai total (bukan totalPrice yang tidak ada di format baru)
             const sales = dates.map(d=>allItems.filter(i=>new Date(i.date).toLocaleDateString()===d).reduce((a,b)=>a+(b.total || 0),0));
             const costs = dates.map(d=>Object.values(expensesData).filter(e=>new Date(e.date).toLocaleDateString()===d).reduce((a,b)=>a+(b.amount || 0),0));
             
@@ -720,19 +748,109 @@
             });
         }
         function updateChartTheme() { updateDashboard(); }
+
+        // DIPERBAIKI: Fungsi render laporan dengan fitur klik untuk detail
         function renderFullReport() {
             const t=document.getElementById('report-full-body'); t.innerHTML='';
-            // Combine orders (returns included) and expenses
-            const combined = [
-                ...Object.values(ordersData).map(o=>({type:'Penjualan', date:o.date, detail:`Order: ${o.customerName}`, amount:o.grandTotal || 0})),
-                ...Object.values(expensesData).map(e=>({type:'Pengeluaran', date:e.date, detail:e.title, amount:e.amount || 0}))
+            
+            reportCombinedData = [
+                ...Object.entries(ordersData).map(([k,o])=>({type:'Penjualan', date:o.date, detail:`Order: ${o.customerName}`, amount:o.grandTotal || 0, rawData: o, key: k})),
+                ...Object.entries(expensesData).map(([k,e])=>({type:'Pengeluaran', date:e.date, detail:e.title, amount:e.amount || 0, rawData: e, key: k}))
             ].sort((a,b)=>new Date(b.date)-new Date(a.date));
-            combined.forEach(v => { const color = v.type==='Penjualan'?'var(--success)':'var(--danger)'; t.innerHTML += `<tr><td><span class="badge" style="background:${color};color:#fff">${v.type}</span></td><td>${new Date(v.date).toLocaleDateString()}</td><td>${v.detail}</td><td>${formatRupiah(v.amount)}</td></tr>`; });
+            
+            reportCombinedData.forEach((v, idx) => { 
+                const color = v.type==='Penjualan'?'var(--success)':'var(--danger)'; 
+                const isReturn = v.type === 'Penjualan' && v.rawData.isReturn;
+                const typeLabel = isReturn ? 'Retur' : v.type;
+                const typeColor = isReturn ? '#e67e22' : color;
+                
+                t.innerHTML += `<tr class="clickable-row" onclick="showReportDetail(${idx})">
+                    <td><span class="badge" style="background:${typeColor};color:#fff">${typeLabel}</span></td>
+                    <td>${new Date(v.date).toLocaleDateString()}</td>
+                    <td>${v.detail}</td>
+                    <td style="font-weight: 600; ${isReturn ? 'color: var(--danger)' : ''}">${formatRupiah(v.amount)}</td>
+                </tr>`; 
+            });
         }
 
-        window.exportToCSV = () => showToast('Export CSV belum diaktifkan di versi multi-item', 'warning'); // Disabled for complexity in this specific update
+        // DITAMBAHKAN: Fungsi untuk menampilkan modal detail laporan
+        window.showReportDetail = (idx) => {
+            const v = reportCombinedData[idx];
+            const content = document.getElementById('detail-modal-content');
+            const title = document.getElementById('detail-modal-title');
+            
+            if (v.type === 'Penjualan') {
+                const o = v.rawData;
+                const isReturn = o.isReturn;
+                
+                title.innerHTML = isReturn 
+                    ? '<i class="fas fa-undo" style="color: #e67e22;"></i> Detail Retur' 
+                    : '<i class="fas fa-receipt" style="color: var(--success);"></i> Detail Penjualan';
+                
+                let html = `
+                    <div class="detail-info-grid">
+                        <span class="detail-info-label">ID Transaksi</span>
+                        <span class="detail-info-value" style="font-family: monospace; font-size: 0.85rem; color: var(--text-grey);">${v.key}</span>
+                        <span class="detail-info-label">Pelanggan</span>
+                        <span class="detail-info-value"><strong>${o.customerName || '-'}</strong> ${isReturn ? '<span class="detail-return-badge">RETUR</span>' : ''}</span>
+                        <span class="detail-info-label">Tanggal & Waktu</span>
+                        <span class="detail-info-value">${new Date(o.date).toLocaleString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 10px; font-size: 0.95rem; color: var(--text-grey);"><i class="fas fa-shopping-bag"></i> Daftar Item</h4>
+                    <div class="detail-item-list">
+                `;
+                
+                if (o.items && o.items.length > 0) {
+                    o.items.forEach((item, i) => {
+                        const itemTotal = item.total || (item.qty * item.price);
+                        html += `
+                            <div class="detail-item-row">
+                                <div>
+                                    <div class="detail-item-name">${i+1}. ${item.name}</div>
+                                    <div class="detail-item-calc">${item.qty} x ${formatRupiah(item.price)}</div>
+                                </div>
+                                <div class="detail-item-total" style="${itemTotal < 0 ? 'color: var(--danger)' : ''}">${formatRupiah(itemTotal)}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `<div style="padding: 10px; color: var(--text-grey); text-align: center;">Data item lama (tidak tersedia)</div>`;
+                }
+                
+                html += `</div>
+                    <div class="detail-grand-total" style="${v.amount < 0 ? 'color: var(--danger)' : ''}">
+                        ${isReturn ? 'Refund' : 'Grand Total'}: ${formatRupiah(v.amount)}
+                    </div>
+                `;
+                
+                content.innerHTML = html;
+                
+            } else if (v.type === 'Pengeluaran') {
+                const e = v.rawData;
+                title.innerHTML = '<i class="fas fa-wallet" style="color: var(--danger);"></i> Detail Pengeluaran';
+                
+                content.innerHTML = `
+                    <div class="detail-info-grid">
+                        <span class="detail-info-label">ID Pengeluaran</span>
+                        <span class="detail-info-value" style="font-family: monospace; font-size: 0.85rem; color: var(--text-grey);">${v.key}</span>
+                        <span class="detail-info-label">Keterangan</span>
+                        <span class="detail-info-value"><strong>${e.title}</strong></span>
+                        <span class="detail-info-label">Tanggal & Waktu</span>
+                        <span class="detail-info-value">${new Date(e.date).toLocaleString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div style="background: var(--bg-light); border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="font-size: 0.9rem; color: var(--text-grey); margin-bottom: 5px;">Jumlah Pengeluaran</div>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--danger);">${formatRupiah(e.amount)}</div>
+                    </div>
+                `;
+            }
+            
+            openModal('detailModal');
+        };
 
-        // Saya menambahkan fungsi showCustomConfirm di sini karena dipanggil di deleteProduct tapi belum ada di kode asli
+        window.exportToCSV = () => showToast('Export CSV belum diaktifkan di versi multi-item', 'warning');
+
         window.showCustomConfirm = (msg, onConfirm) => {
             if(confirm(msg)) onConfirm();
         };
