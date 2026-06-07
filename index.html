@@ -99,7 +99,6 @@
         th { background-color: var(--bg-light); font-weight: 600; color: var(--text-grey); font-size: 0.85rem; text-transform: uppercase; }
         tr:hover { background-color: rgba(0,0,0,0.02); }
         .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); transition: transform 0.2s; }
-        /* DITAMBAHKAN: Efek zoom in saat hover foto */
         .product-thumb.zoomable { cursor: zoom-in; }
         .product-thumb.zoomable:hover { transform: scale(1.1); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         
@@ -133,7 +132,6 @@
         .modal-box { background: var(--white); padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
 
-        /* DITAMBAHKAN: CSS Lightbox untuk Preview Gambar */
         .lightbox-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 5000;
@@ -177,15 +175,6 @@
         .rcpt-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .rcpt-divider { border-top: 1px dashed black; margin: 10px 0; }
 
-        /* DITAMBAHKAN: CSS KHUSUS REKAP */
-        .rekap-card { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); padding: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-left: 5px solid var(--primary-dark); }
-        .rekap-month { font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); }
-        .rekap-stats { display: flex; gap: 20px; }
-        .rekap-stat-item { text-align: center; }
-        .rekap-stat-val { font-weight: 600; font-size: 1.1rem; }
-        .rekap-stat-label { font-size: 0.75rem; color: var(--text-grey); }
-        .text-success { color: var(--success); } .text-danger { color: var(--danger); } .text-primary { color: var(--primary-dark); }
-
         /* Mobile */
         @media (max-width: 768px) {
             #mobile-toggle { display: flex; }
@@ -195,7 +184,6 @@
             .page-header { flex-direction: column; align-items: flex-start; }
             .pos-grid { grid-template-columns: 1fr; }
             .detail-info-grid { grid-template-columns: 1fr; }
-            .rekap-card { flex-direction: column; text-align: center; gap: 15px; }
         }
     </style>
 </head>
@@ -233,8 +221,6 @@
                 <li class="nav-item"><a href="#" class="nav-link" data-target="customer-section"><i class="fas fa-users"></i> Pelanggan</a></li>
                 <li class="nav-item"><a href="#" class="nav-link" data-target="keuangan-section"><i class="fas fa-wallet"></i> Keuangan</a></li>
                 <li class="nav-item"><a href="#" class="nav-link" data-target="laporan-section"><i class="fas fa-chart-line"></i> Laporan</a></li>
-                <!-- DITAMBAHKAN: Menu Rekap Bulanan -->
-                <li class="nav-item" style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;"><a href="#" class="nav-link" data-target="rekap-section"><i class="fas fa-calendar-alt"></i> Rekap Bulanan</a></li>
             </ul>
             <div class="user-profile">
                 <div class="user-avatar" id="user-avatar-initial">A</div>
@@ -327,17 +313,8 @@
                     </div>
                 </div>
                 <p style="margin-bottom: 15px; color: var(--text-grey); font-size: 0.85rem;"><i class="fas fa-mouse-pointer"></i> Klik baris data untuk melihat detail transaksi</p>
-                <div class="table-container"><table><thead><tr><th>Tipe</th><th>Tanggal</th><th>Detail</th><th>Nominal (Rp)</th></tr></thead><tbody id="report-full-body"></tbody></table></div>
-            </section>
-
-            <!-- DITAMBAHKAN: Section Rekap Bulanan -->
-            <section id="rekap-section" class="view-section hidden">
-                <div class="page-header">
-                    <h2 class="page-title">Rekap Bulanan</h2>
-                    <button class="btn btn-warning" onclick="manualRekap()"><i class="fas fa-archive"></i> Tutup Buku Bulan Ini</button>
-                </div>
-                <p style="margin-bottom: 20px; color: var(--text-grey); font-size: 0.9rem;">Data transaksi akan otomatis diarsipkan dan direset setiap berganti bulan saat aplikasi dibuka.</p>
-                <div id="rekap-list-container"></div>
+                <!-- DITAMBAHKAN: Kolom Aksi di thead -->
+                <div class="table-container"><table><thead><tr><th>Tipe</th><th>Tanggal</th><th>Detail</th><th>Nominal (Rp)</th><th>Aksi</th></tr></thead><tbody id="report-full-body"></tbody></table></div>
             </section>
         </main>
     </div>
@@ -395,23 +372,8 @@
         </div>
     </div>
 
-    <!-- DITAMBAHKAN: HTML Lightbox Preview Gambar -->
     <div id="imageLightbox" class="lightbox-overlay" onclick="closeLightbox()">
         <img id="lightbox-img" src="" alt="Preview Gambar">
-    </div>
-
-    <!-- DITAMBAHKAN: Modal Rekap Detail -->
-    <div id="rekapDetailModal" class="hidden modal-overlay">
-        <div class="modal-box" style="max-width: 600px; text-align: left;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 id="rekap-detail-title" style="margin: 0;">Detail Rekap</h3>
-                <button onclick="closeModal('rekapDetailModal')" style="border: none; background: none; cursor: pointer; font-size: 1.2rem; color: var(--text-grey);"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="rekap-detail-content"></div>
-            <div class="modal-actions" style="margin-top: 25px;">
-                <button class="btn btn-secondary" onclick="closeModal('rekapDetailModal')">Tutup</button>
-            </div>
-        </div>
     </div>
 
     <!-- HIDDEN RECEIPT -->
@@ -443,10 +405,6 @@
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getDatabase(app);
         let currentUser = null, productsData = {}, ordersData = {}, expensesData = {}, customersData = {}, cart = [];
         let salesChartInstance = null, html5QrcodeScanner = null, reportCombinedData = [];
-        
-        // DITAMBAHKAN: Variabel untuk fitur Rekap
-        let recapsData = {};
-        let isRecapping = false;
 
         const formatRupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(n);
         const showToast = (m, t='success') => {
@@ -457,7 +415,6 @@
         window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
         window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); if(id === 'scannerModal' && html5QrcodeScanner) html5QrcodeScanner.stop(); };
         
-        // DITAMBAHKAN: Fungsi Lightbox
         window.previewProductImage = (src) => {
             document.getElementById('lightbox-img').src = src;
             document.getElementById('imageLightbox').classList.add('active');
@@ -466,7 +423,6 @@
             document.getElementById('imageLightbox').classList.remove('active');
         };
 
-        // PERBAIKAN: Fungsi wrapper untuk hapus data (karena remove() Firebase tidak bisa dipanggil langsung dari HTML di type="module")
         window.deleteData = (path) => {
             if(confirm('Yakin ingin menghapus data ini?')) {
                 remove(ref(db, path)).then(() => showToast('Data berhasil dihapus')).catch(err => showToast('Gagal menghapus: ' + err.message, 'error'));
@@ -535,12 +491,12 @@
             onValue(ref(db, `${p}/orders`), s=>{ ordersData=s.val()||{}; updateDashboard(); renderFullReport(); });
             onValue(ref(db, `${p}/expenses`), s=>{ expensesData=s.val()||{}; updateDashboard(); renderFullReport(); renderExpenses(); });
             onValue(ref(db, `${p}/customers`), s=>{ customersData=s.val()||{}; renderCustomers(); populateCustomerSelect(); });
-            // DITAMBAHKAN: Listener untuk data Rekap & Trigger Auto Rekap
-            onValue(ref(db, `${p}/recaps`), s=>{ recapsData=s.val()||{}; renderRecapList(); });
-            checkAndRunMonthRecap();
         }
 
         document.getElementById('report-full-body').addEventListener('click', function(e) {
+            // DITAMBAHKAN: Cegah membuka detail jika yang diklik adalah tombol hapus
+            if (e.target.closest('.btn')) return; 
+            
             const row = e.target.closest('.clickable-row');
             if (row) { showReportDetail(parseInt(row.getAttribute('data-index'))); }
         });
@@ -581,7 +537,6 @@
         function renderProducts() {
             const t=document.getElementById('product-table-body'); t.innerHTML='';
             Object.entries(productsData).forEach(([k,v])=>{
-                // PERBAIKAN: Menambahkan class zoomable dan onclick untuk preview gambar
                 const img = v.imageUrl ? `<img src="${v.imageUrl}" class="product-thumb zoomable" onclick="previewProductImage('${v.imageUrl}')">` : '<div class="product-thumb" style="background:#eee;display:flex;align-items:center;justify-content:center"><i class="fas fa-image" style="color:#ccc"></i></div>';
                 t.innerHTML += `<tr><td>${img}</td><td>${v.name}</td><td>${v.category}</td><td>${formatRupiah(v.price)}</td><td>${v.stock}</td><td><button class="btn btn-sm" onclick="editProduct('${k}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="deleteProduct('${k}')"><i class="fas fa-trash"></i></button></td></tr>`;
             });
@@ -604,7 +559,6 @@
         });
         function renderCustomers() {
             const t=document.getElementById('customer-table-body'); t.innerHTML='';
-            // PERBAIKAN: Mengganti pemanggilan remove() langsung dengan fungsi wrapper deleteData()
             Object.entries(customersData).forEach(([k,v])=> t.innerHTML += `<tr><td>${v.name}</td><td>${v.phone}</td><td>${v.totalTrx || 0}</td><td><button class="btn btn-sm btn-danger" onclick="deleteData('ym_market_data/customers/${k}')"><i class="fas fa-trash"></i></button></td></tr>`);
         }
 
@@ -616,7 +570,6 @@
         });
         function renderExpenses() {
             const t=document.getElementById('expense-table-body'); t.innerHTML='';
-            // PERBAIKAN: Mengganti pemanggilan remove() langsung dengan fungsi wrapper deleteData()
             Object.entries(expensesData).forEach(([k,v])=> t.innerHTML += `<tr><td>${new Date(v.date).toLocaleDateString()}</td><td>${v.title}</td><td>${formatRupiah(v.amount)}</td><td><button class="btn btn-sm btn-danger" onclick="deleteData('ym_market_data/expenses/${k}')"><i class="fas fa-trash"></i></button></td></tr>`);
         }
 
@@ -757,11 +710,16 @@
                 const isReturn = v.type === 'Penjualan' && v.rawData.isReturn;
                 const typeLabel = isReturn ? 'Retur' : v.type;
                 const typeColor = isReturn ? '#e67e22' : color;
+                
+                // DITAMBAHKAN: Menentukan path hapus berdasarkan tipe data
+                const deletePath = v.type === 'Penjualan' ? `ym_market_data/orders/${v.key}` : `ym_market_data/expenses/${v.key}`;
+                
                 t.innerHTML += `<tr class="clickable-row" data-index="${idx}">
                     <td><span class="badge" style="background:${typeColor};color:#fff">${typeLabel}</span></td>
                     <td>${new Date(v.date).toLocaleDateString()}</td>
                     <td>${v.detail}</td>
                     <td style="font-weight: 600; ${isReturn ? 'color: var(--danger)' : ''}">${formatRupiah(v.amount)}</td>
+                    <td><button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteData('${deletePath}')"><i class="fas fa-trash"></i></button></td>
                 </tr>`; 
             });
         }
@@ -825,169 +783,6 @@
             document.body.removeChild(link);
             showToast('File CSV berhasil diunduh');
         };
-
-        // ==========================================================
-        // DITAMBAHKAN: LOGIKA AUTO REKAP BULANAN
-        // ==========================================================
-        function getCurrentMonthFormat() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        }
-
-        async function checkAndRunMonthRecap() {
-            if(isRecapping) return;
-            try {
-                const currentMonth = getCurrentMonthFormat();
-                const metaSnap = await get(child(ref(db), 'ym_market_data/system_meta/active_month'));
-                const activeMonth = metaSnap.exists() ? metaSnap.val() : null;
-
-                if (!activeMonth) {
-                    await set(ref(db, 'ym_market_data/system_meta/active_month'), currentMonth);
-                    return;
-                }
-
-                if (activeMonth === currentMonth) return;
-
-                await runRecap(activeMonth, currentMonth);
-            } catch (error) {
-                console.error("Gagal cek rekap:", error);
-            }
-        }
-
-        window.manualRekap = async () => {
-            if(isRecapping) return;
-            const currentMonth = getCurrentMonthFormat();
-            const hasOrders = Object.keys(ordersData).length > 0;
-            const hasExpenses = Object.keys(expensesData).length > 0;
-            
-            if(!hasOrders && !hasExpenses) {
-                return showToast('Tidak ada transaksi bulan ini untuk di-rekap', 'error');
-            }
-
-            if(confirm(`Yakin ingin menutup buku bulan ${currentMonth}? Semua transaksi bulan ini akan dipindahkan ke arsip.`)) {
-                const [y, m] = currentMonth.split('-').map(Number);
-                const nextMonthDate = new Date(y, m, 1); 
-                const nextMonth = `${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, '0')}`;
-                await runRecap(currentMonth, nextMonth);
-            }
-        };
-
-        async function runRecap(oldMonth, newMonth) {
-            isRecapping = true;
-            showToast('Sedang melakukan rekap bulanan...', 'warning');
-            
-            try {
-                const orders = ordersData;
-                const expenses = expensesData;
-                const hasData = Object.keys(orders).length > 0 || Object.keys(expenses).length > 0;
-
-                if (hasData) {
-                    await set(ref(db, `ym_market_data/recaps/${oldMonth}`), {
-                        orders: orders,
-                        expenses: expenses,
-                        recapTimestamp: new Date().toISOString()
-                    });
-
-                    await remove(ref(db, 'ym_market_data/orders'));
-                    await remove(ref(db, 'ym_market_data/expenses'));
-                }
-
-                await set(ref(db, 'ym_market_data/system_meta/active_month'), newMonth);
-                showToast(`Rekap bulan ${oldMonth} berhasil! Data direset untuk ${newMonth}`);
-            } catch (error) {
-                console.error("Gagal Rekap:", error);
-                showToast('Gagal melakukan rekap: ' + error.message, 'error');
-            } finally {
-                isRecapping = false;
-            }
-        }
-
-        function renderRecapList() {
-            const container = document.getElementById('rekap-list-container');
-            const months = Object.keys(recapsData).sort().reverse();
-            
-            if (months.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding: 50px; color: var(--text-grey);"><i class="fas fa-archive" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i><h3>Belum Ada Arsip</h3><p style="font-size: 0.9rem;">Arsip akan muncul di sini secara otomatis saat berganti bulan.</p></div>`;
-                return;
-            }
-
-            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            
-            let html = '';
-            months.forEach(m => {
-                const data = recapsData[m];
-                const [y, mo] = m.split('-');
-                const totalIn = Object.values(data.orders || {}).reduce((a,b) => a + (b.grandTotal || 0), 0);
-                const totalOut = Object.values(data.expenses || {}).reduce((a,b) => a + (b.amount || 0), 0);
-                const profit = totalIn - totalOut;
-                
-                html += `
-                    <div class="rekap-card clickable-row" onclick="showRecapDetail('${m}')">
-                        <div>
-                            <div class="rekap-month"><i class="fas fa-folder-open"></i> ${monthNames[parseInt(mo)-1]} ${y}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-grey); margin-top: 5px;">Diarsipkan: ${new Date(data.recapTimestamp).toLocaleString('id-ID')}</div>
-                        </div>
-                        <div class="rekap-stats">
-                            <div class="rekap-stat-item">
-                                <div class="rekap-stat-val text-success">${formatRupiah(totalIn)}</div>
-                                <div class="rekap-stat-label">Masuk</div>
-                            </div>
-                            <div class="rekap-stat-item">
-                                <div class="rekap-stat-val text-danger">${formatRapiah(totalOut)}</div>
-                                <div class="rekap-stat-label">Keluar</div>
-                            </div>
-                            <div class="rekap-stat-item">
-                                <div class="rekap-stat-val text-primary">${formatRupiah(profit)}</div>
-                                <div class="rekap-stat-label">Laba</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        window.showRecapDetail = (monthKey) => {
-            const data = recapsData[monthKey];
-            if(!data) return;
-            
-            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            const [y, mo] = monthKey.split('-');
-            
-            document.getElementById('rekap-detail-title').innerHTML = `<i class="fas fa-calendar-check text-primary"></i> Detail ${monthNames[parseInt(mo)-1]} ${y}`;
-            
-            const totalIn = Object.values(data.orders || {}).reduce((a,b) => a + (b.grandTotal || 0), 0);
-            const totalOut = Object.values(data.expenses || {}).reduce((a,b) => a + (b.amount || 0), 0);
-            
-            let html = `
-                <div class="stats-grid" style="margin-bottom: 20px;">
-                    <div class="stat-card" style="background: #e8f5e9;"><div class="stat-info"><h3 style="color:#2e7d32">${formatRupiah(totalIn)}</h3><p>Total Penjualan</p></div><div class="stat-icon bg-green"><i class="fas fa-arrow-up"></i></div></div>
-                    <div class="stat-card" style="background: #ffebee;"><div class="stat-info"><h3 style="color:#c62828">${formatRupiah(totalOut)}</h3><p>Total Pengeluaran</p></div><div class="stat-icon bg-red"><i class="fas fa-arrow-down"></i></div></div>
-                </div>
-                <h4 style="margin-bottom:10px;">Riwayat Transaksi Bulan Ini</h4>
-                <div class="table-container" style="max-height: 400px; overflow-y: auto;">
-                    <table>
-                        <thead><tr><th>Tipe</th><th>Tanggal</th><th>Detail</th><th>Nominal</th></tr></thead>
-                        <tbody>
-            `;
-            
-            const combined = [
-                ...Object.values(data.orders || {}).map(o=>({type:'Penjualan', date:o.date, detail:o.customerName, amount:o.grandTotal||0})),
-                ...Object.values(data.expenses || {}).map(e=>({type:'Pengeluaran', date:e.date, detail:e.title, amount:e.amount||0}))
-            ].sort((a,b)=> new Date(b.date) - new Date(a.date));
-
-            combined.forEach(v => {
-                const color = v.type==='Penjualan'?'var(--success)':'var(--danger)';
-                html += `<tr><td><span class="badge" style="background:${color};color:#fff">${v.type}</span></td><td>${new Date(v.date).toLocaleDateString()}</td><td>${v.detail}</td><td>${formatRupiah(v.amount)}</td></tr>`;
-            });
-
-            if(combined.length === 0) html += `<tr><td colspan="4" style="text-align:center; color:var(--text-grey)">Tidak ada data</td></tr>`;
-
-            html += `</tbody></table></div>`;
-            document.getElementById('rekap-detail-content').innerHTML = html;
-            openModal('rekapDetailModal');
-        };
-
     </script>
 </body>
 </html>
