@@ -102,7 +102,7 @@
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
         .badge-success { background: #e8f5e9; color: #2e7d32; } .badge-warning { background: #fff8e1; color: #f57f17; } .badge-danger { background: #ffebee; color: #c62828; }
 
-        /* DITAMBAHKAN: CSS untuk baris yang bisa diklik */
+        /* CSS untuk baris yang bisa diklik */
         .clickable-row { cursor: pointer; transition: all 0.2s ease; }
         .clickable-row:hover { background-color: rgba(0, 176, 155, 0.08) !important; }
         .clickable-row td:first-child { position: relative; padding-left: 35px; }
@@ -114,7 +114,7 @@
         }
         .clickable-row:hover td:first-child::before { opacity: 1; color: var(--primary-dark); transform: translateY(-50%) translateX(2px); }
 
-        /* DITAMBAHKAN: CSS untuk isi modal detail */
+        /* CSS untuk isi modal detail */
         .detail-info-grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px 15px; margin-bottom: 20px; }
         .detail-info-label { font-weight: 600; color: var(--text-grey); font-size: 0.9rem; }
         .detail-info-value { font-size: 0.95rem; }
@@ -424,7 +424,7 @@
         </div>
     </div>
 
-    <!-- DITAMBAHKAN: MODAL DETAIL LAPORAN -->
+    <!-- MODAL DETAIL LAPORAN -->
     <div id="detailModal" class="hidden modal-overlay">
         <div class="modal-box" style="max-width: 550px; text-align: left;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -468,7 +468,7 @@
         let currentUser = null, productsData = {}, ordersData = {}, expensesData = {}, customersData = {}, cart = [];
         let salesChartInstance = null, html5QrcodeScanner = null;
 
-        // DITAMBAHKAN: Variabel untuk menyimpan data gabungan laporan
+        // Variabel untuk menyimpan data gabungan laporan
         let reportCombinedData = [];
 
         // Helpers
@@ -539,6 +539,16 @@
             onValue(ref(db, `${p}/expenses`), s=>{ expensesData=s.val()||{}; updateDashboard(); renderFullReport(); renderExpenses(); });
             onValue(ref(db, `${p}/customers`), s=>{ customersData=s.val()||{}; renderCustomers(); populateCustomerSelect(); });
         }
+
+        // PERBAIKAN UTAMA: Menggunakan Event Delegation untuk menangkap klik di tabel laporan
+        document.getElementById('report-full-body').addEventListener('click', function(e) {
+            // Cari apakah yang diklik adalah baris (.clickable-row) atau anak dari baris tersebut (misal teks/badge)
+            const row = e.target.closest('.clickable-row');
+            if (row) {
+                const idx = parseInt(row.getAttribute('data-index'));
+                showReportDetail(idx);
+            }
+        });
 
         // Navigation
         document.querySelectorAll('.nav-link').forEach(l=>{ l.addEventListener('click', e=>{ e.preventDefault(); document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active')); l.classList.add('active'); document.querySelectorAll('.view-section').forEach(x=>x.classList.add('hidden')); document.getElementById(l.getAttribute('data-target')).classList.remove('hidden'); if(window.innerWidth<=768) document.getElementById('sidebar').classList.remove('active'); }); });
@@ -749,7 +759,6 @@
         }
         function updateChartTheme() { updateDashboard(); }
 
-        // DIPERBAIKI: Fungsi render laporan dengan fitur klik untuk detail
         function renderFullReport() {
             const t=document.getElementById('report-full-body'); t.innerHTML='';
             
@@ -764,7 +773,8 @@
                 const typeLabel = isReturn ? 'Retur' : v.type;
                 const typeColor = isReturn ? '#e67e22' : color;
                 
-                t.innerHTML += `<tr class="clickable-row" onclick="showReportDetail(${idx})">
+                // PERBAIKAN: Menggunakan data-index alih-alih onclick langsung
+                t.innerHTML += `<tr class="clickable-row" data-index="${idx}">
                     <td><span class="badge" style="background:${typeColor};color:#fff">${typeLabel}</span></td>
                     <td>${new Date(v.date).toLocaleDateString()}</td>
                     <td>${v.detail}</td>
@@ -773,8 +783,8 @@
             });
         }
 
-        // DITAMBAHKAN: Fungsi untuk menampilkan modal detail laporan
-        window.showReportDetail = (idx) => {
+        // Fungsi untuk menampilkan modal detail (tidak perlu window. karena dipanggil oleh event listener di dalam module yang sama)
+        function showReportDetail(idx) {
             const v = reportCombinedData[idx];
             const content = document.getElementById('detail-modal-content');
             const title = document.getElementById('detail-modal-title');
@@ -847,7 +857,7 @@
             }
             
             openModal('detailModal');
-        };
+        }
 
         window.exportToCSV = () => showToast('Export CSV belum diaktifkan di versi multi-item', 'warning');
 
